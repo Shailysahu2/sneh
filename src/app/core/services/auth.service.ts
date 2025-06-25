@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, tap, catchError, of } from 'rxjs';
 import { User, AuthResponse, LoginRequest, RegisterRequest, UserRole } from '../models/user.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:3000/api/auth';
+  private readonly API_URL = `${environment.apiUrl}/auth`; // Use environment variable
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'refresh_token';
