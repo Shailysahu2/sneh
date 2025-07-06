@@ -147,7 +147,8 @@ export class LoginComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(error.message || 'Login failed. Please try again.');
+          console.error('Login error:', error);
+          this.errorMessage.set(error.error?.error || error.message || 'Login failed. Please try again.');
         }
       });
     }

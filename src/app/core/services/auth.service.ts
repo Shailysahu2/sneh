@@ -45,10 +45,11 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials).pipe(
       tap(response => {
         this.handleAuthSuccess(response);
+        this.isLoading.set(false);
       }),
       catchError(error => {
         this.isLoading.set(false);
-        return of(error);
+        throw error;
       })
     );
   }
@@ -76,7 +77,7 @@ export class AuthService {
 
   private handleAuthSuccess(response: AuthResponse): void {
     localStorage.setItem(this.tokenKey, response.token);
-    localStorage.setItem(this.refreshTokenKey, response.refreshToken);
+    localStorage.setItem(this.refreshTokenKey, response.token);
     this.setCurrentUser(response.user);
   }
 

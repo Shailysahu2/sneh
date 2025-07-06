@@ -1,13 +1,15 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, delay, map } from 'rxjs';
+import { Observable, of, delay, map, catchError } from 'rxjs';
 import { Product, ProductFilter, Category, Brand } from '../models/product.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly API_URL = 'http://localhost:3000/api/products';
+  private readonly API_URL = `${environment.apiUrl}/products`;
+  private apiUrl = environment.apiUrl;
   
   // Signals for reactive state
   products = signal<Product[]>([]);
@@ -17,6 +19,7 @@ export class ProductService {
 
   constructor(private http: HttpClient) {
     this.loadMockData();
+    this.loadProductsFromBackend();
   }
 
   private loadMockData(): void {
@@ -38,141 +41,171 @@ export class ProductService {
       { id: '5', name: 'Sony', slug: 'sony', isActive: true }
     ];
 
-    // Mock products
-    const mockProducts: Product[] = [
-      {
-        id: '1',
-        name: 'iPhone 15 Pro',
-        description: 'The latest iPhone with advanced features and stunning design.',
-        shortDescription: 'Latest iPhone with Pro features',
-        sku: 'IPH15PRO001',
-        price: 999,
-        salePrice: 899,
-        images: [
-          { id: '1', url: 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg', alt: 'iPhone 15 Pro', isPrimary: true, order: 1 }
-        ],
-        category: mockCategories[0],
-        brand: mockBrands[0],
-        tags: ['smartphone', 'apple', 'premium'],
-        attributes: [
-          { name: 'Storage', value: '256GB', type: 'select' },
-          { name: 'Color', value: 'Space Black', type: 'select' }
-        ],
-        variants: [],
-        inventory: { quantity: 50, lowStockThreshold: 10, trackQuantity: true, allowBackorder: false, status: 'in_stock' },
-        seo: { slug: 'iphone-15-pro', title: 'iPhone 15 Pro - Latest Apple Smartphone' },
-        ratings: { average: 4.8, count: 245, distribution: { 5: 180, 4: 45, 3: 15, 2: 3, 1: 2 } },
-        reviews: [],
-        isActive: true,
-        isFeatured: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: '2',
-        name: 'Samsung Galaxy S24',
-        description: 'Powerful Android smartphone with excellent camera and performance.',
-        shortDescription: 'Latest Samsung Galaxy flagship',
-        sku: 'SGS24001',
-        price: 849,
-        images: [
-          { id: '2', url: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg', alt: 'Samsung Galaxy S24', isPrimary: true, order: 1 }
-        ],
-        category: mockCategories[0],
-        brand: mockBrands[1],
-        tags: ['smartphone', 'samsung', 'android'],
-        attributes: [
-          { name: 'Storage', value: '128GB', type: 'select' },
-          { name: 'Color', value: 'Phantom Black', type: 'select' }
-        ],
-        variants: [],
-        inventory: { quantity: 35, lowStockThreshold: 10, trackQuantity: true, allowBackorder: false, status: 'in_stock' },
-        seo: { slug: 'samsung-galaxy-s24', title: 'Samsung Galaxy S24 - Android Flagship' },
-        ratings: { average: 4.6, count: 189, distribution: { 5: 120, 4: 45, 3: 18, 2: 4, 1: 2 } },
-        reviews: [],
-        isActive: true,
-        isFeatured: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: '3',
-        name: 'Nike Air Max 270',
-        description: 'Comfortable running shoes with excellent cushioning and style.',
-        shortDescription: 'Premium running shoes',
-        sku: 'NAM270001',
-        price: 150,
-        salePrice: 120,
-        images: [
-          { id: '3', url: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg', alt: 'Nike Air Max 270', isPrimary: true, order: 1 }
-        ],
-        category: mockCategories[3],
-        brand: mockBrands[2],
-        tags: ['shoes', 'running', 'nike'],
-        attributes: [
-          { name: 'Size', value: '10', type: 'select' },
-          { name: 'Color', value: 'Black/White', type: 'select' }
-        ],
-        variants: [],
-        inventory: { quantity: 75, lowStockThreshold: 15, trackQuantity: true, allowBackorder: false, status: 'in_stock' },
-        seo: { slug: 'nike-air-max-270', title: 'Nike Air Max 270 - Running Shoes' },
-        ratings: { average: 4.7, count: 156, distribution: { 5: 98, 4: 38, 3: 15, 2: 3, 1: 2 } },
-        reviews: [],
-        isActive: true,
-        isFeatured: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: '4',
-        name: 'Sony WH-1000XM5',
-        description: 'Premium noise-canceling wireless headphones with exceptional sound quality.',
-        shortDescription: 'Noise-canceling headphones',
-        sku: 'SWH1000XM5',
-        price: 399,
-        images: [
-          { id: '4', url: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg', alt: 'Sony WH-1000XM5', isPrimary: true, order: 1 }
-        ],
-        category: mockCategories[0],
-        brand: mockBrands[4],
-        tags: ['headphones', 'wireless', 'noise-canceling'],
-        attributes: [
-          { name: 'Color', value: 'Black', type: 'select' },
-          { name: 'Connectivity', value: 'Bluetooth 5.2', type: 'text' }
-        ],
-        variants: [],
-        inventory: { quantity: 25, lowStockThreshold: 5, trackQuantity: true, allowBackorder: false, status: 'in_stock' },
-        seo: { slug: 'sony-wh-1000xm5', title: 'Sony WH-1000XM5 - Premium Headphones' },
-        ratings: { average: 4.9, count: 312, distribution: { 5: 280, 4: 25, 3: 5, 2: 1, 1: 1 } },
-        reviews: [],
-        isActive: true,
-        isFeatured: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
-
     this.categories.set(mockCategories);
     this.brands.set(mockBrands);
-    this.products.set(mockProducts);
   }
 
-  getProducts(filter?: ProductFilter): Observable<{ products: Product[], total: number }> {
-    this.isLoading.set(true);
-    
-    return of({ products: this.products(), total: this.products().length })
-      .pipe(
-        delay(500),
-        map(result => {
-          this.isLoading.set(false);
-          return result;
-        })
-      );
+  private loadProductsFromBackend(): void {
+    this.getProductsFromBackend().subscribe({
+      next: (result) => {
+        this.products.set(result.products);
+      },
+      error: (error) => {
+        console.error('Error loading products from backend:', error);
+        // Keep mock data if backend fails
+      }
+    });
+  }
+
+  private getProductsFromBackend(): Observable<{ products: Product[], total: number }> {
+    return this.http.get<any[]>(this.API_URL).pipe(
+      map(backendProducts => {
+        console.log('Raw backend products:', backendProducts); // Debug log
+        const products: Product[] = backendProducts.map(bp => {
+          console.log('Processing backend product:', bp); // Debug log
+          
+          // Process images first
+          const processedProduct = this.processProductImages(bp);
+          console.log('Processed product images:', processedProduct.images); // Debug log
+          
+          return {
+            id: bp._id || bp.id,
+            name: bp.name,
+            description: bp.description,
+            shortDescription: bp.description?.substring(0, 100) || '',
+            sku: bp.sku || `SKU${bp._id}`,
+            price: bp.price,
+            salePrice: bp.salePrice,
+            images: processedProduct.images,
+            category: this.categories().find(c => c.name === bp.category) || this.categories()[0],
+            brand: this.brands().find(b => b.name === bp.brand) || this.brands()[0],
+            tags: bp.tags || [],
+            attributes: bp.attributes || [],
+            variants: bp.variants || [],
+            inventory: {
+              quantity: bp.stock || 0,
+              lowStockThreshold: 10,
+              trackQuantity: true,
+              allowBackorder: false,
+              status: (bp.stock || 0) > 0 ? 'in_stock' : 'out_of_stock'
+            },
+            seo: { slug: bp.name?.toLowerCase().replace(/\s+/g, '-'), title: bp.name },
+            ratings: { average: bp.rating || 0, count: bp.numReviews || 0, distribution: {} },
+            reviews: [],
+            isActive: true,
+            isFeatured: false,
+            createdAt: new Date(bp.createdAt),
+            updatedAt: new Date(bp.updatedAt)
+          };
+        });
+        console.log('Final processed products:', products); // Debug log
+        return { products, total: products.length };
+      }),
+      catchError(error => {
+        console.error('Backend API error:', error);
+        return of({ products: [], total: 0 });
+      })
+    );
+  }
+
+  getProducts(): Observable<{ products: Product[]; total: number }> {
+    return this.http.get<any[]>(this.API_URL).pipe(
+      map(backendProducts => {
+        console.log('Raw products from backend:', backendProducts); // Debug log
+        const products: Product[] = backendProducts.map(bp => {
+          console.log('Processing backend product:', bp); // Debug log
+          
+          // Process images first
+          const processedProduct = this.processProductImages(bp);
+          console.log('Processed product images:', processedProduct.images); // Debug log
+          
+          return {
+            id: bp._id || bp.id,
+            name: bp.name,
+            description: bp.description,
+            shortDescription: bp.description?.substring(0, 100) || '',
+            sku: bp.sku || `SKU${bp._id}`,
+            price: bp.price,
+            salePrice: bp.salePrice,
+            images: processedProduct.images,
+            category: this.categories().find(c => c.name === bp.category) || this.categories()[0],
+            brand: this.brands().find(b => b.name === bp.brand) || this.brands()[0],
+            tags: bp.tags || [],
+            attributes: bp.attributes || [],
+            variants: bp.variants || [],
+            inventory: {
+              quantity: bp.stock || 0,
+              lowStockThreshold: 10,
+              trackQuantity: true,
+              allowBackorder: false,
+              status: (bp.stock || 0) > 0 ? 'in_stock' : 'out_of_stock'
+            },
+            seo: { slug: bp.name?.toLowerCase().replace(/\s+/g, '-'), title: bp.name },
+            ratings: { average: bp.rating || 0, count: bp.numReviews || 0, distribution: {} },
+            reviews: [],
+            isActive: true,
+            isFeatured: false,
+            createdAt: new Date(bp.createdAt),
+            updatedAt: new Date(bp.updatedAt)
+          };
+        });
+        console.log('Final processed products:', products); // Debug log
+        return { products, total: products.length };
+      }),
+      catchError(error => {
+        console.error('Error fetching products:', error);
+        return of({ products: [], total: 0 });
+      })
+    );
   }
 
   getProduct(id: string): Observable<Product | null> {
-    const product = this.products().find(p => p.id === id);
-    return of(product || null).pipe(delay(300));
+    return this.http.get<any>(`${this.API_URL}/${id}`).pipe(
+      map(backendProduct => {
+        console.log('Raw backend product:', backendProduct); // Debug log
+        
+        // Process the product images
+        const processedProduct = this.processProductImages(backendProduct);
+        console.log('Processed images:', processedProduct.images); // Debug log
+        
+        const product: Product = {
+          id: backendProduct._id || backendProduct.id,
+          name: backendProduct.name,
+          description: backendProduct.description,
+          shortDescription: backendProduct.description?.substring(0, 100) || '',
+          sku: backendProduct.sku || `SKU${backendProduct._id}`,
+          price: backendProduct.price,
+          salePrice: backendProduct.salePrice,
+          images: processedProduct.images,
+          category: this.categories().find(c => c.name === backendProduct.category) || this.categories()[0],
+          brand: this.brands().find(b => b.name === backendProduct.brand) || this.brands()[0],
+          tags: backendProduct.tags || [],
+          attributes: backendProduct.attributes || [],
+          variants: backendProduct.variants || [],
+          inventory: {
+            quantity: backendProduct.stock || 0,
+            lowStockThreshold: 10,
+            trackQuantity: true,
+            allowBackorder: false,
+            status: (backendProduct.stock || 0) > 0 ? 'in_stock' : 'out_of_stock'
+          },
+          seo: { slug: backendProduct.name?.toLowerCase().replace(/\s+/g, '-'), title: backendProduct.name },
+          ratings: { average: backendProduct.rating || 0, count: backendProduct.numReviews || 0, distribution: {} },
+          reviews: [],
+          isActive: true,
+          isFeatured: false,
+          createdAt: new Date(backendProduct.createdAt),
+          updatedAt: new Date(backendProduct.updatedAt)
+        };
+        
+        console.log('Final processed product for detail view:', product); // Debug log
+        return product;
+      }),
+      catchError(error => {
+        console.error('Error fetching product:', error);
+        return of(null);
+      })
+    );
   }
 
   getFeaturedProducts(): Observable<Product[]> {
@@ -209,45 +242,298 @@ export class ProductService {
   }
 
   // Admin methods
-  createProduct(product: Partial<Product>): Observable<Product> {
-    const newProduct: Product = {
-      ...product,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    } as Product;
-
-    const currentProducts = this.products();
-    this.products.set([...currentProducts, newProduct]);
-    
-    return of(newProduct).pipe(delay(500));
+  createProduct(product: Partial<Product>, files?: File[]): Observable<Product> {
+    if (files && files.length > 0) {
+      const formData = new FormData();
+      formData.append('name', product.name || '');
+      formData.append('description', product.description || '');
+      formData.append('price', String(product.price || 0));
+      formData.append('category', typeof product.category === 'object' ? product.category?.name : product.category || '');
+      formData.append('brand', typeof product.brand === 'object' ? product.brand?.name : product.brand || '');
+      formData.append('stock', String(product.inventory?.quantity || 0));
+      formData.append('sku', product.sku || '');
+      files.forEach((file, i) => {
+        formData.append('images', file, file.name);
+      });
+      
+      return this.http.post<any>(this.API_URL, formData).pipe(
+        map(response => {
+          const newProduct: Product = {
+            id: response._id || Date.now().toString(),
+            name: response.name,
+            description: response.description,
+            shortDescription: product.shortDescription || response.description.substring(0, 100),
+            sku: response.sku || product.sku || `SKU${Date.now()}`,
+            price: response.price,
+            salePrice: product.salePrice,
+            images: response.images?.map((img: any, index: number) => ({
+              id: index.toString(),
+              url: img.url,
+              alt: response.name,
+              isPrimary: index === 0,
+              order: index + 1
+            })) || [],
+            category: this.categories().find(c => c.name === response.category) || this.categories()[0],
+            brand: this.brands().find(b => b.name === response.brand) || this.brands()[0],
+            tags: product.tags || [],
+            attributes: product.attributes || [],
+            variants: product.variants || [],
+            inventory: {
+              quantity: response.stock,
+              lowStockThreshold: product.inventory?.lowStockThreshold || 10,
+              trackQuantity: true,
+              allowBackorder: false,
+              status: response.stock > 0 ? 'in_stock' : 'out_of_stock'
+            },
+            seo: product.seo || { slug: response.name?.toLowerCase().replace(/\s+/g, '-'), title: response.name },
+            ratings: { average: 0, count: 0, distribution: {} },
+            reviews: [],
+            isActive: true,
+            isFeatured: false,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          
+          // Add to local state
+          const currentProducts = this.products();
+          this.products.set([...currentProducts, newProduct]);
+          
+          return newProduct;
+        }),
+        catchError(error => {
+          console.error('Error creating product:', error);
+          if (error.error) {
+            console.error('Backend error details:', error.error);
+          }
+          throw error;
+        })
+      );
+    } else {
+      // JSON approach for products without files
+      const backendProduct = {
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        category: typeof product.category === 'object' ? product.category?.name : product.category,
+        brand: typeof product.brand === 'object' ? product.brand?.name : product.brand,
+        stock: product.inventory?.quantity || 0,
+        sku: product.sku,
+        images: product.images?.map(img => ({ url: img.url, public_id: '' })) || []
+      };
+      
+      return this.http.post<any>(this.API_URL, backendProduct).pipe(
+        map(response => {
+          const newProduct: Product = {
+            id: response._id || Date.now().toString(),
+            name: response.name,
+            description: response.description,
+            shortDescription: product.shortDescription || response.description.substring(0, 100),
+            sku: response.sku || product.sku || `SKU${Date.now()}`,
+            price: response.price,
+            salePrice: product.salePrice,
+            images: response.images?.map((img: any, index: number) => ({
+              id: index.toString(),
+              url: img.url,
+              alt: response.name,
+              isPrimary: index === 0,
+              order: index + 1
+            })) || [],
+            category: this.categories().find(c => c.name === response.category) || this.categories()[0],
+            brand: this.brands().find(b => b.name === response.brand) || this.brands()[0],
+            tags: product.tags || [],
+            attributes: product.attributes || [],
+            variants: product.variants || [],
+            inventory: {
+              quantity: response.stock,
+              lowStockThreshold: product.inventory?.lowStockThreshold || 10,
+              trackQuantity: true,
+              allowBackorder: false,
+              status: response.stock > 0 ? 'in_stock' : 'out_of_stock'
+            },
+            seo: product.seo || { slug: response.name?.toLowerCase().replace(/\s+/g, '-'), title: response.name },
+            ratings: { average: 0, count: 0, distribution: {} },
+            reviews: [],
+            isActive: true,
+            isFeatured: false,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          
+          // Add to local state
+          const currentProducts = this.products();
+          this.products.set([...currentProducts, newProduct]);
+          
+          return newProduct;
+        }),
+        catchError(error => {
+          console.error('Error creating product:', error);
+          if (error.error) {
+            console.error('Backend error details:', error.error);
+          }
+          throw error;
+        })
+      );
+    }
   }
 
   updateProduct(id: string, updates: Partial<Product>): Observable<Product> {
-    const currentProducts = this.products();
-    const index = currentProducts.findIndex(p => p.id === id);
-    
-    if (index === -1) {
-      throw new Error('Product not found');
-    }
-
-    const updatedProduct = {
-      ...currentProducts[index],
-      ...updates,
-      updatedAt: new Date()
+    const backendUpdates = {
+      name: updates.name,
+      description: updates.description,
+      price: updates.price,
+      category: typeof updates.category === 'object' ? updates.category?.name : updates.category,
+      brand: typeof updates.brand === 'object' ? updates.brand?.name : updates.brand,
+      stock: updates.inventory?.quantity || 0,
+      sku: updates.sku,
+      isActive: updates.isActive
     };
 
-    currentProducts[index] = updatedProduct;
-    this.products.set([...currentProducts]);
-    
-    return of(updatedProduct).pipe(delay(500));
+    return this.http.put<any>(`${this.API_URL}/${id}`, backendUpdates).pipe(
+      map(response => {
+        const updatedProduct: Product = {
+          id: response._id || id,
+          name: response.name,
+          description: response.description,
+          shortDescription: updates.shortDescription || response.description?.substring(0, 100) || '',
+          sku: response.sku,
+          price: response.price,
+          salePrice: updates.salePrice,
+          images: response.images?.map((img: any, index: number) => ({
+            id: index.toString(),
+            url: this.getFullImageUrl(img.url || img),
+            alt: response.name,
+            isPrimary: index === 0,
+            order: index + 1
+          })) || [],
+          category: this.categories().find(c => c.name === response.category) || this.categories()[0],
+          brand: this.brands().find(b => b.name === response.brand) || this.brands()[0],
+          tags: updates.tags || [],
+          attributes: updates.attributes || [],
+          variants: updates.variants || [],
+          inventory: {
+            quantity: response.stock || 0,
+            lowStockThreshold: updates.inventory?.lowStockThreshold || 10,
+            trackQuantity: true,
+            allowBackorder: false,
+            status: (response.stock || 0) > 0 ? 'in_stock' : 'out_of_stock'
+          },
+          seo: updates.seo || { slug: response.name?.toLowerCase().replace(/\s+/g, '-'), title: response.name },
+          ratings: updates.ratings || { average: 0, count: 0, distribution: {} },
+          reviews: updates.reviews || [],
+          isActive: response.isActive !== undefined ? response.isActive : true,
+          isFeatured: updates.isFeatured || false,
+          createdAt: new Date(response.createdAt),
+          updatedAt: new Date(response.updatedAt)
+        };
+
+        // Update local state
+        const currentProducts = this.products();
+        const index = currentProducts.findIndex(p => p.id === id);
+        if (index !== -1) {
+          currentProducts[index] = updatedProduct;
+          this.products.set([...currentProducts]);
+        }
+
+        return updatedProduct;
+      }),
+      catchError(error => {
+        console.error('Error updating product:', error);
+        throw error;
+      })
+    );
   }
 
   deleteProduct(id: string): Observable<boolean> {
-    const currentProducts = this.products();
-    const filtered = currentProducts.filter(p => p.id !== id);
-    this.products.set(filtered);
+    return this.http.delete<any>(`${this.API_URL}/${id}`).pipe(
+      map(response => {
+        // Remove from local state
+        const currentProducts = this.products();
+        const filtered = currentProducts.filter(p => p.id !== id);
+        this.products.set(filtered);
+        
+        return true;
+      }),
+      catchError(error => {
+        console.error('Error deleting product:', error);
+        throw error;
+      })
+    );
+  }
+
+  // Helper method to get full image URL
+  private getFullImageUrl(imagePath: string): string {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    // Ensure we have the correct format: https://sneh-backend.onrender.com/uploads/filename
+    const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+    const baseUrl = environment.apiUrl.replace('/api', ''); // Remove /api to get base URL
+    const fullUrl = `${baseUrl}${cleanPath}`;
+    console.log('Generated image URL:', fullUrl); // Debug log
+    return fullUrl;
+  }
+
+  // Helper method to process product images
+  private processProductImages(product: any): any {
+    console.log('Processing images for product:', product.name, product); // Debug log
     
-    return of(true).pipe(delay(500));
+    // Handle both imageUrl and images fields from backend
+    let processedImages = [];
+    
+    // First, check if there's an imageUrl field
+    if (product.imageUrl && product.imageUrl.trim() !== '') {
+      console.log('Found imageUrl:', product.imageUrl); // Debug log
+      processedImages.push({
+        id: '0',
+        url: this.getFullImageUrl(product.imageUrl),
+        alt: product.name,
+        isPrimary: true,
+        order: 1
+      });
+    }
+    
+    // Then, process the images array if it exists
+    if (product.images && Array.isArray(product.images)) {
+      console.log('Found images array:', product.images); // Debug log
+      product.images.forEach((img: any, index: number) => {
+        console.log('Processing image item:', img); // Debug log
+        
+        if (typeof img === 'string') {
+          processedImages.push({
+            id: (processedImages.length + index).toString(),
+            url: this.getFullImageUrl(img),
+            alt: product.name,
+            isPrimary: processedImages.length === 0 && index === 0,
+            order: processedImages.length + index + 1
+          });
+        } else if (img && img.url) {
+          console.log('Processing image with URL:', img.url); // Debug log
+          processedImages.push({
+            id: (processedImages.length + index).toString(),
+            url: this.getFullImageUrl(img.url),
+            alt: product.name,
+            isPrimary: processedImages.length === 0 && index === 0,
+            order: processedImages.length + index + 1
+          });
+        }
+      });
+    }
+    
+    // If no images found, add a placeholder
+    if (processedImages.length === 0) {
+      console.log('No images found, using placeholder'); // Debug log
+      processedImages.push({
+        id: '0',
+        url: 'https://via.placeholder.com/300x200?text=No+Image',
+        alt: product.name,
+        isPrimary: true,
+        order: 1
+      });
+    }
+    
+    console.log('Final processed images:', processedImages); // Debug log
+    product.images = processedImages;
+    return product;
   }
 }

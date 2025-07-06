@@ -49,8 +49,6 @@ export enum UserRole {
 export interface AuthResponse {
   user: User;
   token: string;
-  refreshToken: string;
-  expiresIn: number;
 }
 
 export interface LoginRequest {

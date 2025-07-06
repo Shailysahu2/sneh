@@ -28,7 +28,7 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
             <!-- Categories -->
             <div class="mb-6">
               <h4 class="font-medium text-gray-800 mb-3">Categories</h4>
-              @for (category of categories(); track category.id) {
+              @for (category of categories(); track category.id ?? $index) {
                 <label class="flex items-center mb-2">
                   <input type="checkbox" class="mr-2">
                   <span class="text-sm">{{ category.name }}</span>
@@ -48,7 +48,7 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
             <!-- Brands -->
             <div class="mb-6">
               <h4 class="font-medium text-gray-800 mb-3">Brands</h4>
-              @for (brand of brands(); track brand.id) {
+              @for (brand of brands(); track brand.id ?? $index) {
                 <label class="flex items-center mb-2">
                   <input type="checkbox" class="mr-2">
                   <span class="text-sm">{{ brand.name }}</span>
@@ -77,12 +77,15 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
             </div>
           } @else {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              @for (product of products(); track product.id) {
+              @for (product of products(); track product.id ?? $index) {
                 <div class="card p-4 group">
                   <div class="relative mb-4 overflow-hidden rounded-lg">
-                    <img [src]="product.images[0].url" 
+                    <img [src]="getProductImage(product)" 
                          [alt]="product.name"
-                         class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                         crossorigin="anonymous"
+                         class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                         (error)="onImageError($event)"
+                         (load)="onImageLoad($event)">
                     @if (product.salePrice) {
                       <div class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
                         Sale
@@ -112,7 +115,7 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
                       <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                       </svg>
-                      <span class="text-sm text-gray-600">{{ product.ratings.average }}</span>
+                      <span class="text-sm text-gray-600">{{ product.ratings?.average || 0 }}</span>
                     </div>
                   </div>
                   
@@ -187,5 +190,30 @@ export class ProductListComponent implements OnInit {
     } else if (query.length === 0) {
       this.loadProducts();
     }
+  }
+
+  getProductImage(product: Product): string {
+    // Handle different image formats from backend
+    if (product.images && product.images.length > 0) {
+      const firstImage = product.images[0];
+      
+      if (typeof firstImage === 'string') {
+        return firstImage;
+      } else if (firstImage.url) {
+        return firstImage.url;
+      }
+    }
+    
+    // Fallback to placeholder
+    return 'https://via.placeholder.com/300x200?text=No+Image';
+  }
+
+  onImageError(event: any): void {
+    console.log('Image failed to load:', event.target.src);
+    event.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+  }
+
+  onImageLoad(event: any): void {
+    console.log('Image loaded successfully:', event.target.src);
   }
 }

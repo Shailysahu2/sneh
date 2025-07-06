@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../core/models/product.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-product-detail',
@@ -19,19 +20,27 @@ import { Product } from '../../../core/models/product.model';
           <!-- Product Images -->
           <div class="space-y-4">
             <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-              <img [src]="product()!.images[0].url" 
+              <img [src]="getProductImage(product()!)"
                    [alt]="product()!.name"
-                   class="w-full h-full object-cover">
+                   crossorigin="anonymous"
+                   class="w-full h-full object-cover"
+                   (error)="onImageError($event)"
+                   (load)="onImageLoad($event)">
             </div>
-            <div class="grid grid-cols-4 gap-2">
-              @for (image of product()!.images; track image.id) {
-                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-75">
-                  <img [src]="image.url" 
-                       [alt]="image.alt"
-                       class="w-full h-full object-cover">
-                </div>
-              }
-            </div>
+            @if (product()!.images && product()!.images.length > 1) {
+              <div class="grid grid-cols-4 gap-2">
+                @for (image of product()!.images; track image.id) {
+                  <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-75">
+                    <img [src]="getFullImageUrl(image.url)" 
+                         [alt]="image.alt"
+                         crossorigin="anonymous"
+                         class="w-full h-full object-cover"
+                         (error)="onImageError($event)"
+                         (load)="onImageLoad($event)">
+                  </div>
+                }
+              </div>
+            }
           </div>
 
           <!-- Product Info -->
@@ -134,13 +143,22 @@ import { Product } from '../../../core/models/product.model';
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Related Products</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               @for (relatedProduct of relatedProducts(); track relatedProduct.id) {
-                <div class="card p-4">
-                  <img [src]="relatedProduct.images[0].url" 
-                       [alt]="relatedProduct.name"
-                       class="w-full h-32 object-cover rounded-lg mb-3">
+                <a [routerLink]="['/products', relatedProduct.id]" class="block card p-4 hover:shadow-lg transition-shadow">
+                  @if (relatedProduct.images && relatedProduct.images.length > 0) {
+                    <img [src]="getFullImageUrl(relatedProduct.images[0].url)" 
+                         [alt]="relatedProduct.name"
+                         crossorigin="anonymous"
+                         class="w-full h-32 object-contain rounded-lg mb-3"
+                         (error)="onImageError($event)"
+                         (load)="onImageLoad($event)">
+                  } @else {
+                    <div class="w-full h-32 bg-gray-200 rounded-lg mb-3 flex items-center justify-center text-gray-500 text-sm">
+                      No Image
+                    </div>
+                  }
                   <h3 class="font-medium text-gray-800 mb-1">{{ relatedProduct.name }}</h3>
                   <p class="text-blue-600 font-semibold">\${{ relatedProduct.salePrice || relatedProduct.price }}</p>
-                </div>
+                </a>
               }
             </div>
           </div>
@@ -174,9 +192,23 @@ export class ProductDetailComponent implements OnInit {
 
   private loadProduct(id: string): void {
     this.isLoading.set(true);
+    console.log('Loading product with ID:', id);
     
     this.productService.getProduct(id).subscribe({
       next: (product) => {
+        console.log('Product loaded:', product);
+        console.log('Product images:', product?.images);
+        console.log('Product image URLs:', product?.images?.map(img => img.url));
+        
+        // Test image URLs if product has images
+        if (product?.images && product.images.length > 0) {
+          product.images.forEach(img => {
+            if (img.url) {
+              this.testImageUrl(this.getFullImageUrl(img.url));
+            }
+          });
+        }
+        
         this.product.set(product);
         this.isLoading.set(false);
         
@@ -184,7 +216,8 @@ export class ProductDetailComponent implements OnInit {
           this.loadRelatedProducts(id);
         }
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error loading product:', error);
         this.isLoading.set(false);
       }
     });
@@ -196,5 +229,56 @@ export class ProductDetailComponent implements OnInit {
         this.relatedProducts.set(products);
       }
     });
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://via.placeholder.com/300x200?text=No+Image';
+    console.log('Image failed to load:', img.src);
+  }
+
+  onImageLoad(event: Event): void {
+    console.log('Image loaded successfully:', (event.target as HTMLImageElement).src);
+  }
+
+  // Test method to verify image URLs
+  testImageUrl(url: string): void {
+    console.log('Testing image URL:', url);
+    const img = new Image();
+    img.onload = () => console.log('Image test successful:', url);
+    img.onerror = () => console.log('Image test failed:', url);
+    img.src = url;
+  }
+
+  // Helper method to get full image URL (same as product service)
+  public getFullImageUrl(imagePath: string): string {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    // Ensure we have the correct format: https://sneh-backend.onrender.com/uploads/filename
+    const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+    const baseUrl = environment.apiUrl.replace('/api', ''); // Remove /api to get base URL
+    return `${baseUrl}${cleanPath}`;
+  }
+
+  // Updated getProductImage method with proper URL handling
+  getProductImage(product: Product): string {
+    console.log('Getting image for product:', product.name, product.images); // Debug log
+    if (product.images && product.images.length > 0) {
+      const firstImage = product.images[0];
+      console.log('First image:', firstImage); // Debug log
+      if (typeof firstImage === 'string') {
+        const url = this.getFullImageUrl(firstImage);
+        console.log('Generated URL from string:', url); // Debug log
+        return url;
+      } else if (firstImage.url) {
+        const url = this.getFullImageUrl(firstImage.url);
+        console.log('Generated URL from object:', url); // Debug log
+        return url;
+      }
+    }
+    console.log('No images found, using placeholder'); // Debug log
+    return 'https://via.placeholder.com/300x200?text=No+Image';
   }
 }
