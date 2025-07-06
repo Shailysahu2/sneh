@@ -450,9 +450,9 @@ import { Product } from '../../../core/models/product.model';
                           </div>
                         </div>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ product.category?.name || 'N/A' }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ product.category.name || 'N/A' }}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$ {{ product.price }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ product.inventory?.quantity || 0 }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ product.inventory.quantity || 0 }}</td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         @if (product.isActive) {
                           <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
