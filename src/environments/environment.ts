@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://sneh-backend-pl60.onrender.com/api'
+  apiUrl: 'https://sneh-backend-l44h.onrender.com/api'
 };
