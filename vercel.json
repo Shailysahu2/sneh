@@ -6,6 +6,6 @@
       }
     ],
     "buildCommand": "ng build",
-    "outputDirectory": "dist/project",
+    "outputDirectory": "dist/sneh",
     "framework": null
   }
