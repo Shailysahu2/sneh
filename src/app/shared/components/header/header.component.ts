@@ -10,15 +10,13 @@ import { UserRole } from '../../../core/models/user.model';
   imports: [CommonModule, RouterModule],
   template: `
     <header class="bg-white shadow-lg sticky top-0 z-50">
-      <div class="container mx-auto px-4">
+      <div class="container mx-auto px-0">
         <div class="flex items-center justify-between h-16">
           <!-- Logo -->
-          <div class="flex items-center">
+          <div class="flex items-center mr-4">
             <a routerLink="/" class="flex items-center space-x-2">
-              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-sm">E</span>
-              </div>
-              <span class="text-xl font-bold text-gray-800">EcomStore</span>
+              <img src="assets/240_F_1526505345_Y0orkkdbHTvBtrlOHDjgMFe7y9DiOAx6.jpg" alt="SnehKrishiKendra Logo" class="w-12 h-12" />
+              <span class="text-xl font-bold text-gray-800">Snehkrishikendra</span>
             </a>
           </div>
 

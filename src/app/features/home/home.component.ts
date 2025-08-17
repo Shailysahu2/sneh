@@ -15,10 +15,13 @@ import { Product, Category } from '../../core/models/product.model';
         <div class="container mx-auto px-4">
           <div class="max-w-4xl mx-auto text-center">
             <h1 class="text-5xl md:text-6xl font-bold mb-6 fade-in">
-              Welcome to EcomStore
+              Welcome to SnehKrishiKendra
             </h1>
-            <p class="text-xl md:text-2xl mb-8 opacity-90 fade-in">
-              Discover amazing products at unbeatable prices. Shop with confidence and enjoy fast, secure delivery.
+            <p class="text-xl md:text-2xl mb-2 opacity-90 fade-in">
+              Your trusted source for the best water pumps—reliable, efficient, and built for every need.
+            </p>
+            <p class="text-lg md:text-xl mb-8 opacity-90 fade-in">
+              आपकी सेवा में सर्वश्रेष्ठ जल पंप—विश्वसनीय, कुशल और हर आवश्यकता के लिए उपयुक्त。
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center fade-in">
               <a routerLink="/products" class="btn-primary text-lg px-8 py-4">
