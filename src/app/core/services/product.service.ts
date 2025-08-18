@@ -25,11 +25,11 @@ export class ProductService {
   private loadMockData(): void {
     // Mock categories
     const mockCategories: Category[] = [
-      { id: '1', name: 'Electronics', slug: 'electronics', isActive: true },
-      { id: '2', name: 'Clothing', slug: 'clothing', isActive: true },
-      { id: '3', name: 'Home & Garden', slug: 'home-garden', isActive: true },
-      { id: '4', name: 'Sports', slug: 'sports', isActive: true },
-      { id: '5', name: 'Books', slug: 'books', isActive: true }
+      { id: '1', name: 'Submersible Pumps', slug: 'submersible-pumps', isActive: true },
+      { id: '2', name: 'Centrifugal Pumps', slug: 'centrifugal-pumps', isActive: true },
+      { id: '3', name: 'Centrifugal Monoset Pumps', slug: 'centrifugal-monoset-pumps', isActive: true },
+      { id: '4', name: 'Compressor Pumps', slug: 'compressor-pumps', isActive: true },
+      { id: '5', name: 'Self-Priming Pumps', slug: 'self-priming-pumps', isActive: true }
     ];
 
     // Mock brands
