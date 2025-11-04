@@ -24,7 +24,7 @@ import { RouterModule } from '@angular/router';
           </div>
           <div class="card p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Phone</h3>
-            <a class="text-blue-600 hover:text-blue-800 font-medium" href="tel:+919425323340">94253 23340</a>
+            <a class="text-blue-600 hover:text-blue-800 font-medium" href="tel:+919425323340">94253 23340/0761-4010386</a>
           </div>
           <div class="card p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Email</h3>
