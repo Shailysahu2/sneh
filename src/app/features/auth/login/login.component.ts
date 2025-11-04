@@ -95,15 +95,7 @@ import { AuthService } from '../../../core/services/auth.service';
             </button>
           </div>
 
-          <!-- Demo Credentials -->
-          <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 class="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h3>
-            <div class="text-xs text-blue-700 space-y-1">
-              <div><strong>Admin:</strong>  admin&#64;example.com / admin123</div>
-              <div><strong>Employee:</strong> employee&#64;example.com / emp123</div>
-              <div><strong>Customer:</strong> user&#64;example.com / user123</div>
-            </div>
-          </div>
+          
         </form>
       </div>
     </div>
