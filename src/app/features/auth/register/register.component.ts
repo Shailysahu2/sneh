@@ -30,7 +30,13 @@ import { AuthService } from '../../../core/services/auth.service';
 
         <form class="mt-8 space-y-6" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
           @if (errorMessage()) {
-            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" [innerHTML]="errorMessage()">
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {{ errorMessage() }}
+              @if (showLoginSuggestion()) {
+                <span class="ml-1">
+                  <a routerLink="/auth/login" class="text-blue-600 hover:text-blue-500 underline">Sign in</a>
+                </span>
+              }
             </div>
           }
 
@@ -151,6 +157,7 @@ export class RegisterComponent {
   registerForm: FormGroup;
   isLoading = signal(false);
   errorMessage = signal('');
+  showLoginSuggestion = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -187,24 +194,18 @@ export class RegisterComponent {
       this.errorMessage.set('');
 
       const { confirmPassword, terms, ...userData } = this.registerForm.value;
-      console.log('Sending registration data:', userData);
 
       this.authService.register(userData).subscribe({
-        next: (response) => {
-          console.log('Registration successful:', response);
+        next: () => {
           this.isLoading.set(false);
           this.router.navigate(['/']);
         },
         error: (error) => {
-          console.error('Registration error:', error);
           this.isLoading.set(false);
           
           if (error.message === 'User already exists') {
-            this.errorMessage.set(
-              `An account with this email already exists. Please 
-              <a routerLink="/auth/login" class="text-blue-600 hover:text-blue-500">sign in</a> 
-              or use a different email address.`
-            );
+            this.errorMessage.set('An account with this email already exists.');
+            this.showLoginSuggestion.set(true);
             // Clear the email field
             this.registerForm.get('email')?.setValue('');
             this.registerForm.get('email')?.markAsTouched();
@@ -214,17 +215,12 @@ export class RegisterComponent {
               error.error?.message || 
               'Registration failed. Please try again.'
             );
+            this.showLoginSuggestion.set(false);
           }
         }
       });
     } else {
-      console.log('Form validation errors:', this.registerForm.errors);
-      Object.keys(this.registerForm.controls).forEach(key => {
-        const control = this.registerForm.get(key);
-        if (control?.errors) {
-          console.log(`${key} validation errors:`, control.errors);
-        }
-      });
+      this.errorMessage.set('Please fix the highlighted errors and try again.');
     }
   }
 }

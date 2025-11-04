@@ -1,0 +1,17 @@
+{
+  "/api/*": {
+    "target": "https://sneh-backend-b8q4.onrender.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/uploads/*": {
+    "target": "https://sneh-backend-b8q4.onrender.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
+
+
+

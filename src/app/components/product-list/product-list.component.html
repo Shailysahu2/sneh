@@ -62,7 +62,7 @@
             <tr *ngFor="let product of products">
               <td>{{ product.name }}</td>
               <td>{{ product.category }}</td>
-              <td>{{ product.price | currency }}</td>
+              <td>₹{{ product.price | number:'1.2-2' }}</td>
               <td>{{ product.stock }}</td>
               <td>
                 <div class="btn-group">

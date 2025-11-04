@@ -14,6 +14,26 @@ body {
   background-color: #f8fafc;
 }
 
+/* Top loading bar shown while HTTP requests are active */
+body.app-loading::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #22c55e 50%, #a855f7 100%);
+  background-size: 200% 100%;
+  animation: progressBar 1.2s ease-in-out infinite;
+  z-index: 9999;
+}
+
+@keyframes progressBar {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -126,6 +146,111 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Additional animation utilities */
+.anim-fade-up {
+  animation: fadeUp 280ms ease-out both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.anim-scale-in {
+  animation: scaleIn 160ms cubic-bezier(.2,.7,.3,1) both;
+  transform-origin: top right;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.anim-slide-down {
+  animation: slideDown 220ms ease-out both;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.anim-slide-right {
+  animation: slideRight 240ms ease-out both;
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.transition-soft {
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease;
+}
+
+/* Skeleton shimmer */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%;
+  height: 100%; width: 150%;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 100%);
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -150%; }
+  60% { left: 100%; }
+  100% { left: 150%; }
+}
+
+/* Product card hover lift + shine */
+.card.hoverable {
+  will-change: transform, box-shadow;
+}
+.card.hoverable:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 35px rgba(0,0,0,.12);
+}
+.shine-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+.shine-on-hover::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -60%;
+  height: 100%; width: 60%;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.25) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-20deg);
+  opacity: 0;
+}
+.shine-on-hover:hover::before {
+  opacity: 1;
+  animation: shineSweep 800ms ease;
+}
+
+@keyframes shineSweep {
+  from { left: -60%; }
+  to { left: 130%; }
+}
+
+/* Toast entrance */
+.toast-enter {
+  animation: slideRight 220ms ease-out both;
+}
+.toast-leave {
+  animation: fadeOut 160ms ease-in both;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
 .slide-in-left {
   animation: slideInLeft 0.5s ease-out;
 }

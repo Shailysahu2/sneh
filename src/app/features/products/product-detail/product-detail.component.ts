@@ -65,13 +65,13 @@ import { environment } from '../../../../environments/environment';
             <!-- Price -->
             <div class="flex items-center space-x-4">
               @if (product()!.salePrice) {
-                <span class="text-3xl font-bold text-red-600">\${{ product()!.salePrice }}</span>
-                <span class="text-xl text-gray-500 line-through">\${{ product()!.price }}</span>
+                    <span class="text-3xl font-bold text-red-600">₹{{ product()!.salePrice | number:'1.2-2' }}</span>
+                <span class="text-xl text-gray-500 line-through">₹{{ product()!.price | number:'1.2-2' }}</span>
                 <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm font-semibold">
-                  Save \${{ product()!.price - product()!.salePrice! }}
+                  Save ₹{{ (product()!.price - product()!.salePrice!) | number:'1.2-2' }}
                 </span>
               } @else {
-                <span class="text-3xl font-bold text-gray-900">\${{ product()!.price }}</span>
+                <span class="text-3xl font-bold text-gray-900">₹{{ product()!.price | number:'1.2-2' }}</span>
               }
             </div>
 
@@ -157,7 +157,7 @@ import { environment } from '../../../../environments/environment';
                     </div>
                   }
                   <h3 class="font-medium text-gray-800 mb-1">{{ relatedProduct.name }}</h3>
-                  <p class="text-blue-600 font-semibold">\${{ relatedProduct.salePrice || relatedProduct.price }}</p>
+                  <p class="text-blue-600 font-semibold">₹{{ (relatedProduct.salePrice || relatedProduct.price) | number:'1.2-2' }}</p>
                 </a>
               }
             </div>
@@ -192,23 +192,11 @@ export class ProductDetailComponent implements OnInit {
 
   private loadProduct(id: string): void {
     this.isLoading.set(true);
-    console.log('Loading product with ID:', id);
     
     this.productService.getProduct(id).subscribe({
       next: (product) => {
-        console.log('Product loaded:', product);
-        console.log('Product images:', product?.images);
-        console.log('Product image URLs:', product?.images?.map(img => img.url));
         
         // Test image URLs if product has images
-        if (product?.images && product.images.length > 0) {
-          product.images.forEach(img => {
-            if (img.url) {
-              this.testImageUrl(this.getFullImageUrl(img.url));
-            }
-          });
-        }
-        
         this.product.set(product);
         this.isLoading.set(false);
         
@@ -217,7 +205,7 @@ export class ProductDetailComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading product:', error);
+        // Optionally route to not-found or show toast via interceptor
         this.isLoading.set(false);
       }
     });
@@ -234,21 +222,12 @@ export class ProductDetailComponent implements OnInit {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = 'https://via.placeholder.com/300x200?text=No+Image';
-    console.log('Image failed to load:', img.src);
   }
 
-  onImageLoad(event: Event): void {
-    console.log('Image loaded successfully:', (event.target as HTMLImageElement).src);
-  }
+  onImageLoad(event: Event): void {}
 
   // Test method to verify image URLs
-  testImageUrl(url: string): void {
-    console.log('Testing image URL:', url);
-    const img = new Image();
-    img.onload = () => console.log('Image test successful:', url);
-    img.onerror = () => console.log('Image test failed:', url);
-    img.src = url;
-  }
+  // Removed debug image URL tester
 
   // Helper method to get full image URL (same as product service)
   public getFullImageUrl(imagePath: string): string {
@@ -264,21 +243,16 @@ export class ProductDetailComponent implements OnInit {
 
   // Updated getProductImage method with proper URL handling
   getProductImage(product: Product): string {
-    console.log('Getting image for product:', product.name, product.images); // Debug log
     if (product.images && product.images.length > 0) {
       const firstImage = product.images[0];
-      console.log('First image:', firstImage); // Debug log
       if (typeof firstImage === 'string') {
         const url = this.getFullImageUrl(firstImage);
-        console.log('Generated URL from string:', url); // Debug log
         return url;
       } else if (firstImage.url) {
         const url = this.getFullImageUrl(firstImage.url);
-        console.log('Generated URL from object:', url); // Debug log
         return url;
       }
     }
-    console.log('No images found, using placeholder'); // Debug log
     return 'https://via.placeholder.com/300x200?text=No+Image';
   }
 }

@@ -207,7 +207,7 @@ import { Product } from '../../../core/models/product.model';
                       </select>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Price (Rs)</label>
                       <input 
                         type="number" 
                         [(ngModel)]="newProduct.price" 

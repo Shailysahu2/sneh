@@ -1,8 +1,11 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
+import { CartService } from '../../../core/services/cart.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Product, ProductFilter } from '../../../core/models/product.model';
+import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -30,31 +33,20 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
               <h4 class="font-medium text-gray-800 mb-3">Categories</h4>
               @for (category of categories(); track category.id ?? $index) {
                 <label class="flex items-center mb-2">
-                  <input type="checkbox" class="mr-2">
+                  <input
+                    type="checkbox"
+                    class="mr-2"
+                    [checked]="isCategorySelected(category.id)"
+                    (change)="onCategoryToggle(category.id, $event)"
+                  >
                   <span class="text-sm">{{ category.name }}</span>
                 </label>
               }
             </div>
 
-            <!-- Price Range -->
-            <div class="mb-6">
-              <h4 class="font-medium text-gray-800 mb-3">Price Range</h4>
-              <div class="flex gap-2">
-                <input type="number" placeholder="Min" class="form-input text-sm">
-                <input type="number" placeholder="Max" class="form-input text-sm">
-              </div>
-            </div>
+            
 
-            <!-- Brands -->
-            <div class="mb-6">
-              <h4 class="font-medium text-gray-800 mb-3">Brands</h4>
-              @for (brand of brands(); track brand.id ?? $index) {
-                <label class="flex items-center mb-2">
-                  <input type="checkbox" class="mr-2">
-                  <span class="text-sm">{{ brand.name }}</span>
-                </label>
-              }
-            </div>
+            
           </div>
         </aside>
 
@@ -62,24 +54,40 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
         <main class="lg:w-3/4">
           <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Products</h1>
-            <select class="form-input w-auto">
-              <option>Sort by: Featured</option>
-              <option>Price: Low to High</option>
-              <option>Price: High to Low</option>
-              <option>Newest</option>
-              <option>Rating</option>
+            <select class="form-input w-auto" (change)="onSortChange($event)">
+              <option value="featured">Sort by: Featured</option>
+              <option value="priceAsc">Price: Low to High</option>
+              <option value="priceDesc">Price: High to Low</option>
+              <option value="newest">Newest</option>
+              <option value="rating">Rating</option>
             </select>
           </div>
 
           @if (isLoading()) {
-            <div class="flex justify-center py-12">
-              <div class="spinner"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              @for (s of [1,2,3,4,5,6]; track $index) {
+                <div class="card p-4 skeleton-shimmer">
+                  <div class="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+                  <div class="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
+                  <div class="h-3 bg-gray-200 rounded w-full mb-2"></div>
+                  <div class="h-3 bg-gray-200 rounded w-5/6 mb-4"></div>
+                  <div class="flex justify-between items-center">
+                    <div class="h-6 bg-gray-200 rounded w-24"></div>
+                    <div class="h-6 bg-gray-200 rounded w-10"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else if (products().length === 0) {
+            <div class="text-center py-16">
+              <h2 class="text-xl font-semibold text-gray-800 mb-2">No products found</h2>
+              <p class="text-gray-600">Try adjusting your search or filters.</p>
             </div>
           } @else {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               @for (product of products(); track product.id ?? $index) {
-                <div class="card p-4 group">
-                  <div class="relative mb-4 overflow-hidden rounded-lg">
+                <div class="card p-4 group hoverable transition-soft">
+                  <div class="relative mb-4 overflow-hidden rounded-lg shine-on-hover">
                     <img [src]="getProductImage(product)" 
                          [alt]="product.name"
                          crossorigin="anonymous"
@@ -104,10 +112,10 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
                   <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                       @if (product.salePrice) {
-                        <span class="text-lg font-bold text-red-600">\${{ product.salePrice }}</span>
-                        <span class="text-sm text-gray-500 line-through">\${{ product.price }}</span>
+                        <span class="text-lg font-bold text-red-600">₹{{ product.salePrice | number:'1.2-2' }}</span>
+                        <span class="text-sm text-gray-500 line-through">₹{{ product.price | number:'1.2-2' }}</span>
                       } @else {
-                        <span class="text-lg font-bold text-gray-800">\${{ product.price }}</span>
+                        <span class="text-lg font-bold text-gray-800">₹{{ product.price | number:'1.2-2' }}</span>
                       }
                     </div>
                     
@@ -123,7 +131,7 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
                     <a [routerLink]="['/products', product.id]" class="flex-1 btn-primary text-center text-sm py-2">
                       View Details
                     </a>
-                    <button class="btn-secondary px-3 py-2">
+                    <button class="btn-secondary px-3 py-2" (click)="addToCart(product)">
                       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0h9"></path>
                       </svg>
@@ -151,21 +159,49 @@ import { Product, ProductFilter } from '../../../core/models/product.model';
 })
 export class ProductListComponent implements OnInit {
   products = signal<Product[]>([]);
+  allProducts = signal<Product[]>([]);
   categories = signal<any[]>([]);
-  brands = signal<any[]>([]);
   isLoading = signal<boolean>(true);
+  private currentSort: 'featured' | 'priceAsc' | 'priceDesc' | 'newest' | 'rating' = 'featured';
+  private selectedCategoryIds = signal<string[]>([]);
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService, private cartService: CartService, private toast: ToastService, private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit(): void {
-    this.loadProducts();
     this.loadFilters();
+    // React to query param 'q' for search
+    this.route.queryParamMap
+      .pipe(
+        map(params => {
+          const q = (params.get('q') || '').trim();
+          const categoryParam = (params.get('category') || '').trim();
+          this.setSelectedCategoryFromParam(categoryParam);
+          return q;
+        }),
+        debounceTime(200),
+        distinctUntilChanged(),
+        switchMap(q => {
+          this.isLoading.set(true);
+          if (q && q.length > 0) {
+            return this.productService.searchProducts(q);
+          }
+          return this.productService.getProducts().pipe(map(res => res.products));
+        })
+      )
+      .subscribe(products => {
+        this.allProducts.set(products);
+        this.products.set(this.applySort(this.applyCategoryFilter(products)));
+        this.isLoading.set(false);
+      });
+    // Initial load without query
+    this.loadProducts();
   }
 
   private loadProducts(): void {
     this.productService.getProducts().subscribe({
       next: (result) => {
-        this.products.set(result.products);
+        this.allProducts.set(result.products);
+        this.products.set(this.applySort(this.applyCategoryFilter(result.products)));
         this.isLoading.set(false);
       }
     });
@@ -176,20 +212,12 @@ export class ProductListComponent implements OnInit {
       next: (categories) => this.categories.set(categories)
     });
 
-    this.productService.getBrands().subscribe({
-      next: (brands) => this.brands.set(brands)
-    });
+    // Removed Brands filter
   }
 
   onSearchChange(event: any): void {
-    const query = event.target.value;
-    if (query.length > 2) {
-      this.productService.searchProducts(query).subscribe({
-        next: (products) => this.products.set(products)
-      });
-    } else if (query.length === 0) {
-      this.loadProducts();
-    }
+    const q = (event?.target?.value || '').trim();
+    this.router.navigate([], { relativeTo: this.route, queryParams: { q }, queryParamsHandling: 'merge' });
   }
 
   getProductImage(product: Product): string {
@@ -215,5 +243,77 @@ export class ProductListComponent implements OnInit {
 
   onImageLoad(event: any): void {
     console.log('Image loaded successfully:', event.target.src);
+  }
+
+  onSortChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement)?.value;
+    this.currentSort = (value as any) || 'featured';
+    const sorted = this.applySort(this.products());
+    this.products.set(sorted);
+  }
+
+  isCategorySelected(categoryId: string): boolean {
+    return this.selectedCategoryIds().includes(categoryId);
+  }
+
+  onCategoryToggle(categoryId: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement)?.checked;
+    const current = new Set(this.selectedCategoryIds());
+    if (checked) {
+      current.add(categoryId);
+    } else {
+      current.delete(categoryId);
+    }
+    this.selectedCategoryIds.set(Array.from(current));
+
+    const filtered = this.applyCategoryFilter(this.allProducts());
+    this.products.set(this.applySort(filtered));
+  }
+
+  private applySort(items: Product[]): Product[] {
+    const productsCopy = [...(items || [])];
+    switch (this.currentSort) {
+      case 'priceAsc':
+        return productsCopy.sort((a, b) => this.getEffectivePrice(a) - this.getEffectivePrice(b));
+      case 'priceDesc':
+        return productsCopy.sort((a, b) => this.getEffectivePrice(b) - this.getEffectivePrice(a));
+      case 'newest':
+        return productsCopy.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      case 'rating':
+        return productsCopy.sort((a, b) => (b.ratings?.average || 0) - (a.ratings?.average || 0));
+      case 'featured':
+      default:
+        return productsCopy; // no special sort
+    }
+  }
+
+  private getEffectivePrice(product: Product): number {
+    const price = typeof product.salePrice === 'number' && product.salePrice > 0 ? product.salePrice : product.price;
+    return Number(price) || 0;
+  }
+
+  private applyCategoryFilter(items: Product[]): Product[] {
+    const selected = this.selectedCategoryIds();
+    if (!selected || selected.length === 0) {
+      return items || [];
+    }
+    const set = new Set(selected);
+    return (items || []).filter(p => p?.category?.id && set.has(p.category.id));
+  }
+
+  private setSelectedCategoryFromParam(categoryParam: string): void {
+    if (!categoryParam) {
+      return;
+    }
+    const allCategories = this.productService.categories();
+    const match = allCategories.find(c => c.slug === categoryParam || c.id === categoryParam || c.name === categoryParam);
+    if (match) {
+      this.selectedCategoryIds.set([match.id]);
+    }
+  }
+
+  addToCart(product: Product): void {
+    this.cartService.addProduct(product, 1);
+    this.toast.success('Added to cart');
   }
 }

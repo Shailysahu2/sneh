@@ -10,7 +10,8 @@ export const routes: Routes = [
   },
   {
     path: 'products',
-    loadChildren: () => import('./features/products/products.routes').then(m => m.PRODUCTS_ROUTES)
+    loadChildren: () => import('./features/products/products.routes').then(m => m.PRODUCTS_ROUTES),
+    canActivate: [AuthGuard]
   },
   {
     path: 'cart',

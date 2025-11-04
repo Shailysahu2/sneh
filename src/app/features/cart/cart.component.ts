@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-cart',
@@ -107,47 +108,32 @@ import { RouterModule } from '@angular/router';
   `
 })
 export class CartComponent {
-  cartItems = signal([
-    {
-      id: '1',
-      name: 'iPhone 15 Pro',
-      description: 'Latest iPhone with Pro features',
-      price: 999,
-      quantity: 1,
-      image: 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg'
-    },
-    {
-      id: '2',
-      name: 'Samsung Galaxy S24',
-      description: 'Latest Samsung Galaxy flagship',
-      price: 849,
-      quantity: 2,
-      image: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg'
-    }
-  ]);
+  cartItems = this.cartService.items;
 
   subtotal = signal(0);
   shipping = signal(10);
   tax = signal(0);
   total = signal(0);
 
-  constructor() {
+  constructor(private cartService: CartService) {
     this.calculateTotals();
+    // Recalculate totals when cart changes
+    effect(() => {
+      // Access signal to create dependency
+      this.cartItems();
+      this.calculateTotals();
+    });
   }
 
   updateQuantity(itemId: string, newQuantity: number): void {
     if (newQuantity < 1) return;
     
-    this.cartItems.update(items => 
-      items.map(item => 
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    );
+    this.cartService.updateQuantity(itemId, newQuantity);
     this.calculateTotals();
   }
 
   removeItem(itemId: string): void {
-    this.cartItems.update(items => items.filter(item => item.id !== itemId));
+    this.cartService.remove(itemId);
     this.calculateTotals();
   }
 

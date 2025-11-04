@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/user.model';
+import { ToastContainerComponent } from '../toast-container/toast-container.component';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ToastContainerComponent],
   template: `
     <header class="bg-white shadow-lg sticky top-0 z-50">
       <div class="container mx-auto px-0">
@@ -35,7 +37,9 @@ import { UserRole } from '../../../core/models/user.model';
             <div class="relative w-full">
               <input type="text" 
                      placeholder="Search products..." 
-                     class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                     class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     (input)="onSearchInput($event)"
+                     (keyup.enter)="onSearchEnter()">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -70,7 +74,7 @@ import { UserRole } from '../../../core/models/user.model';
                 </button>
 
                 @if (showUserMenu()) {
-                  <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                  <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 anim-scale-in">
                     <a routerLink="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
                     <a routerLink="/profile/orders" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Orders</a>
                     
@@ -109,7 +113,7 @@ import { UserRole } from '../../../core/models/user.model';
 
         <!-- Mobile Menu -->
         @if (showMobileMenu()) {
-          <div class="md:hidden border-t border-gray-200 py-4">
+          <div class="md:hidden border-t border-gray-200 py-4 anim-slide-down">
             <div class="flex flex-col space-y-4">
               <a routerLink="/" class="text-gray-700 hover:text-blue-600">Home</a>
               <a routerLink="/products" class="text-gray-700 hover:text-blue-600">Products</a>
@@ -125,6 +129,7 @@ import { UserRole } from '../../../core/models/user.model';
           </div>
         }
       </div>
+      <app-toast-container></app-toast-container>
     </header>
   `
 })
@@ -132,11 +137,23 @@ export class HeaderComponent {
   showUserMenu = signal(false);
   showMobileMenu = signal(false);
   cartItemCount = signal(0);
+  private searchInput$ = new Subject<string>();
+  private latestQuery = '';
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.searchInput$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(q => {
+        this.latestQuery = q;
+        this.router.navigate(['/products'], { queryParams: { q } });
+      });
+  }
 
   isAuthenticated = computed(() => this.authService.isAuthenticated());
   currentUser = computed(() => this.authService.currentUser());
@@ -168,5 +185,14 @@ export class HeaderComponent {
   logout(): void {
     this.authService.logout();
     this.showUserMenu.set(false);
+  }
+
+  onSearchInput(event: any): void {
+    const value = (event?.target?.value || '').trim();
+    this.searchInput$.next(value);
+  }
+
+  onSearchEnter(): void {
+    this.router.navigate(['/products'], { queryParams: { q: this.latestQuery } });
   }
 }
