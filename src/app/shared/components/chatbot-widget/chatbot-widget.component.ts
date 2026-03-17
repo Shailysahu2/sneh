@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
 
 type ChatRole = 'user' | 'bot';
 type ChatMessage = { role: ChatRole; text: string; ts: Date };
@@ -120,7 +121,10 @@ export class ChatbotWidgetComponent {
     }
   ];
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
   toggle() {
     this.open = !this.open;
@@ -152,9 +156,24 @@ export class ChatbotWidgetComponent {
       return;
     }
 
+    const token = this.authService.getToken();
+    if (!token) {
+      this.messages = [
+        ...this.messages,
+        {
+          role: 'bot',
+          text: 'AI search is available after login. Please login to use AI support.',
+          ts: new Date()
+        }
+      ];
+      this.sending = false;
+      return;
+    }
+
     const history = this.messages.slice(-10).map((m) => ({ role: m.role, text: m.text }));
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     this.http
-      .post<{ response: string }>(this.apiUrl, { query: text, history })
+      .post<{ response: string }>(this.apiUrl, { query: text, history }, { headers })
       .subscribe({
         next: (res) => {
           const reply = (res?.response || '').trim() || 'No response received.';
