@@ -12,6 +12,7 @@ import { RouterModule } from '@angular/router';
         <div class="text-center mb-10">
           <h1 class="text-4xl font-extrabold text-gray-900 mb-3">Support</h1>
           <p class="text-gray-600">Contact us anytime. We’re happy to help.</p>
+          <p class="text-sm text-gray-500 mt-2">Tip: use the chat icon in the top bar to ask questions or raise an incident ticket.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

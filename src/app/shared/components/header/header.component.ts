@@ -4,12 +4,13 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/user.model';
 import { ToastContainerComponent } from '../toast-container/toast-container.component';
+import { ChatbotWidgetComponent } from '../chatbot-widget/chatbot-widget.component';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, ToastContainerComponent],
+  imports: [CommonModule, RouterModule, ToastContainerComponent, ChatbotWidgetComponent],
   template: `
     <header class="bg-white shadow-lg sticky top-0 z-50">
       <div class="container mx-auto px-0">
@@ -50,6 +51,9 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
           <!-- User Actions -->
           <div class="flex items-center space-x-4">
+            <!-- Chatbot -->
+            <app-chatbot-widget></app-chatbot-widget>
+
             <!-- Cart -->
             <a routerLink="/cart" class="relative p-2 text-gray-700 hover:text-blue-600 transition-colors">
               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
