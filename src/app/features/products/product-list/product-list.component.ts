@@ -12,16 +12,28 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-10">
+      <div class="mb-8 text-center">
+        <div class="text-xs font-extrabold tracking-widest uppercase" style="color: rgba(17,24,39,.60);">
+          SnehKrishiKendra
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold mt-2" style="letter-spacing: -0.03em; color: rgba(17,24,39,.92);">
+          Products
+        </h1>
+        <p class="mt-2 max-w-2xl mx-auto" style="color: rgba(17,24,39,.62);">
+          Self‑priming, submersible, and surface pumps—built for reliable flow.
+        </p>
+      </div>
+
       <div class="flex flex-col lg:flex-row gap-8">
         <!-- Filters Sidebar -->
         <aside class="lg:w-1/4">
-          <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold mb-4">Filters</h3>
+          <div class="card p-6" style="position: sticky; top: 92px;">
+            <h3 class="text-lg font-extrabold mb-4" style="letter-spacing:-0.01em; color: rgba(17,24,39,.92);">Filters</h3>
             
             <!-- Search -->
             <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+              <label class="block text-sm font-extrabold mb-2" style="color: rgba(17,24,39,.72);">Search</label>
               <input type="text" 
                      placeholder="Search products..." 
                      class="form-input"
@@ -30,9 +42,9 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 
             <!-- Categories -->
             <div class="mb-6">
-              <h4 class="font-medium text-gray-800 mb-3">Categories</h4>
+              <h4 class="font-extrabold mb-3" style="color: rgba(17,24,39,.86); letter-spacing:-0.01em;">Categories</h4>
               @for (category of categories(); track category.id ?? $index) {
-                <label class="flex items-center mb-2">
+                <label class="flex items-center mb-2" style="color: rgba(17,24,39,.84); font-weight: 650;">
                   <input
                     type="checkbox"
                     class="mr-2"
@@ -52,8 +64,10 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 
         <!-- Products Grid -->
         <main class="lg:w-3/4">
-          <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Products</h1>
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+            <div class="text-sm" style="color: rgba(17,24,39,.62);">
+              @if (!isLoading()) { <span>{{ products().length }} items</span> }
+            </div>
             <select class="form-input w-auto" (change)="onSortChange($event)">
               <option value="featured">Sort by: Featured</option>
               <option value="priceAsc">Price: Low to High</option>
@@ -80,14 +94,14 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
             </div>
           } @else if (products().length === 0) {
             <div class="text-center py-16">
-              <h2 class="text-xl font-semibold text-gray-800 mb-2">No products found</h2>
-              <p class="text-gray-600">Try adjusting your search or filters.</p>
+              <h2 class="text-xl font-extrabold mb-2" style="color: rgba(17,24,39,.92);">No products found</h2>
+              <p style="color: rgba(17,24,39,.62);">Try adjusting your search or filters.</p>
             </div>
           } @else {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               @for (product of products(); track product.id ?? $index) {
-                <div class="card p-4 group hoverable transition-soft">
-                  <div class="relative mb-4 overflow-hidden rounded-lg shine-on-hover">
+                <div class="card p-4 group hoverable transition-soft" style="overflow: hidden;">
+                  <div class="relative mb-4 overflow-hidden rounded-xl shine-on-hover" style="border: 1px solid rgba(17,24,39,.10); background: rgba(255,255,255,.55);">
                     <img [src]="getProductImage(product)" 
                          [alt]="product.name"
                          crossorigin="anonymous"
@@ -101,21 +115,21 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
                     }
                   </div>
                   
-                  <h3 class="font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                  <h3 class="font-extrabold mb-2" style="letter-spacing:-0.01em; color: rgba(17,24,39,.92);">
                     {{ product.name }}
                   </h3>
                   
-                  <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                  <p class="text-sm mb-3 line-clamp-2" style="color: rgba(17,24,39,.62);">
                     {{ product.shortDescription }}
                   </p>
                   
                   <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                       @if (product.salePrice) {
-                        <span class="text-lg font-bold text-red-600">₹{{ product.salePrice | number:'1.2-2' }}</span>
-                        <span class="text-sm text-gray-500 line-through">₹{{ product.price | number:'1.2-2' }}</span>
+                        <span class="text-lg font-extrabold" style="color:#dc2626;">₹{{ product.salePrice | number:'1.2-2' }}</span>
+                        <span class="text-sm line-through" style="color: rgba(17,24,39,.45);">₹{{ product.price | number:'1.2-2' }}</span>
                       } @else {
-                        <span class="text-lg font-bold text-gray-800">₹{{ product.price | number:'1.2-2' }}</span>
+                        <span class="text-lg font-extrabold" style="color: rgba(17,24,39,.92);">₹{{ product.price | number:'1.2-2' }}</span>
                       }
                     </div>
                     
@@ -123,15 +137,15 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
                       <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                       </svg>
-                      <span class="text-sm text-gray-600">{{ product.ratings.average || 0 }}</span>
+                      <span class="text-sm" style="color: rgba(17,24,39,.62);">{{ product.ratings.average || 0 }}</span>
                     </div>
                   </div>
                   
                   <div class="flex space-x-2">
-                    <a [routerLink]="['/products', product.id]" class="flex-1 btn-primary text-center text-sm py-2">
+                    <a [routerLink]="['/products', product.id]" class="flex-1 btn-primary text-center text-sm py-2" style="border-radius: 14px;">
                       View Details
                     </a>
-                    <button class="btn-secondary px-3 py-2" (click)="addToCart(product)">
+                    <button class="btn-secondary px-3 py-2" style="border-radius: 14px;" (click)="addToCart(product)" aria-label="Add to cart">
                       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0h9"></path>
                       </svg>
@@ -145,11 +159,11 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
           <!-- Pagination -->
           <div class="flex justify-center mt-8">
             <nav class="flex space-x-2">
-              <button class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Previous</button>
-              <button class="px-3 py-2 bg-blue-600 text-white rounded-md">1</button>
-              <button class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">2</button>
-              <button class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">3</button>
-              <button class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Next</button>
+              <button class="pill">Previous</button>
+              <button class="pill pill--active">1</button>
+              <button class="pill">2</button>
+              <button class="pill">3</button>
+              <button class="pill">Next</button>
             </nav>
           </div>
         </main>

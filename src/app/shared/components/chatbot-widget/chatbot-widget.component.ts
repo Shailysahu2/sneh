@@ -13,21 +13,18 @@ type ChatMessage = { role: ChatRole; text: string; ts: Date };
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   template: `
-    <div class="relative" style="z-index: 10000;">
+    <div class="cbw-root" style="z-index: 10000;">
       <button
         type="button"
-        class="relative inline-flex items-center justify-center h-10 w-10 rounded-full shadow-sm border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+        class="cbw-fab"
         (click)="toggle()"
         aria-label="Open support chat"
         [attr.aria-expanded]="open"
-        aria-controls="navbar-chat-panel"
+        aria-controls="cbw-panel"
         title="Chat support"
       >
-        <span
-          class="absolute inset-0 rounded-full"
-          style="background: radial-gradient(circle at 30% 30%, rgba(34,197,94,.22), rgba(59,130,246,.10), rgba(168,85,247,.06));"
-        ></span>
-        <svg class="relative h-5 w-5 text-gray-800" viewBox="0 0 24 24" fill="none">
+        <span class="cbw-fab__bg" aria-hidden="true"></span>
+        <svg class="cbw-fab__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
             d="M7 8h10M7 12h6M21 12c0 4.418-4.03 8-9 8a10.6 10.6 0 0 1-3.57-.61L3 21l1.66-4.15A7.6 7.6 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"
             stroke="currentColor"
@@ -36,74 +33,535 @@ type ChatMessage = { role: ChatRole; text: string; ts: Date };
             stroke-linejoin="round"
           />
         </svg>
-        <span
-          class="absolute -top-1 -right-1 h-3 w-3 rounded-full"
-          style="background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%); box-shadow: 0 0 0 2px white;"
-        ></span>
+        <span class="cbw-fab__status" aria-hidden="true"></span>
       </button>
 
-      <div
-        id="navbar-chat-panel"
+      <section
+        id="cbw-panel"
         *ngIf="open"
-        class="absolute right-0 mt-3 w-[92vw] max-w-sm rounded-2xl shadow-2xl border border-gray-200 bg-white overflow-hidden anim-scale-in"
-        style="width: min(92vw, 420px);"
+        class="cbw-panel anim-scale-in"
         role="dialog"
         aria-label="Support chat panel"
       >
-        <div class="flex items-center justify-between px-4 py-3 bg-gray-900 text-white">
-          <div class="min-w-0">
-            <div class="font-semibold leading-tight">Support Bot</div>
-            <div class="text-xs text-gray-300 leading-tight">Ask anything or raise an incident</div>
+        <header class="cbw-header">
+          <div class="cbw-header__left">
+            <div class="cbw-avatar" aria-hidden="true">
+              <span class="cbw-avatar__ring"></span>
+              <span class="cbw-avatar__dot"></span>
+            </div>
+            <div class="cbw-title">
+              <div class="cbw-title__name">Support Bot</div>
+              <div class="cbw-title__sub">Instant answers • Ticket in 1 tap</div>
+            </div>
           </div>
-          <button type="button" class="text-sm text-gray-200 hover:text-white" (click)="close()">Close</button>
-        </div>
+          <button type="button" class="cbw-close" (click)="close()" aria-label="Close chat">
+            <span aria-hidden="true">Close</span>
+          </button>
+        </header>
 
-        <div class="px-4 py-3 max-h-72 overflow-auto bg-gray-50">
-          <div *ngFor="let m of messages" class="mb-3">
-            <div class="flex" [class.justify-end]="m.role === 'user'" [class.justify-start]="m.role !== 'user'">
-              <div
-                class="rounded-2xl px-3 py-2 text-sm shadow-sm"
-                style="max-width: 85%;"
-                [class.bg-white]="m.role !== 'user'"
-                [class.text-gray-900]="m.role !== 'user'"
-                [class.border]="m.role !== 'user'"
-                [class.border-gray-200]="m.role !== 'user'"
-                [class.bg-green-600]="m.role === 'user'"
-                [class.text-white]="m.role === 'user'"
-              >
-                <div class="whitespace-pre-wrap">{{ m.text }}</div>
-                <div class="mt-1" style="font-size: 10px;" [class.text-gray-500]="m.role !== 'user'" [class.text-green-100]="m.role === 'user'">
-                  {{ m.ts | date: 'shortTime' }}
-                </div>
+        <div class="cbw-body" role="log" aria-live="polite" aria-relevant="additions text">
+          <div class="cbw-messages">
+            <div *ngFor="let m of messages" class="cbw-row" [attr.data-role]="m.role">
+              <div class="cbw-bubble">
+                <div class="cbw-text">{{ m.text }}</div>
+                <div class="cbw-meta">{{ m.ts | date: 'shortTime' }}</div>
+              </div>
+            </div>
+
+            <div class="cbw-row" data-role="bot" *ngIf="sending">
+              <div class="cbw-bubble cbw-bubble--typing" aria-label="Bot is typing">
+                <span class="cbw-typing" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="px-4 py-3 border-t border-gray-200 bg-white">
-          <div class="flex gap-2">
+        <footer class="cbw-footer">
+          <div class="cbw-composer">
             <input
-              class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
-              placeholder="Type your question…"
+              class="cbw-input"
+              placeholder="Message Support…"
               [(ngModel)]="draft"
               (keydown.enter)="send()"
+              [disabled]="sending"
+              aria-label="Message"
             />
-            <button type="button" class="btn-primary whitespace-nowrap" (click)="send()" [disabled]="sending || !draft.trim()">
+            <button
+              type="button"
+              class="cbw-send"
+              (click)="send()"
+              [disabled]="sending || !draft.trim()"
+              aria-label="Send message"
+            >
               Send
             </button>
           </div>
 
-          <div class="mt-3 flex flex-wrap items-center gap-2">
-            <button type="button" class="btn-secondary text-sm" (click)="quickAsk('Address')">Address</button>
-            <button type="button" class="btn-secondary text-sm" (click)="quickAsk('Phone')">Phone</button>
-            <button type="button" class="btn-secondary text-sm" (click)="quickAsk('Email')">Email</button>
-            <button type="button" class="btn-secondary text-sm" (click)="quickAsk('Raise ticket')">Raise ticket</button>
-            <span class="text-xs text-gray-500 ml-auto" *ngIf="lastIncidentId">Incident: {{ lastIncidentId }}</span>
+          <div class="cbw-actions">
+            <button type="button" class="cbw-chip" (click)="quickAsk('Address')">Address</button>
+            <button type="button" class="cbw-chip" (click)="quickAsk('Phone')">Phone</button>
+            <button type="button" class="cbw-chip" (click)="quickAsk('Email')">Email</button>
+            <button type="button" class="cbw-chip cbw-chip--primary" (click)="quickAsk('Raise ticket')">Raise ticket</button>
+            <span class="cbw-incident" *ngIf="lastIncidentId">Incident: {{ lastIncidentId }}</span>
           </div>
-        </div>
-      </div>
+        </footer>
+      </section>
     </div>
   `
+  ,
+  styles: [
+    `
+      :host {
+        --cbw-bg: rgba(255, 255, 255, 0.78);
+        --cbw-bg-strong: rgba(255, 255, 255, 0.92);
+        --cbw-stroke: rgba(17, 24, 39, 0.12);
+        --cbw-stroke-strong: rgba(17, 24, 39, 0.18);
+        --cbw-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+        --cbw-shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.12);
+        --cbw-text: rgba(17, 24, 39, 0.92);
+        --cbw-text-muted: rgba(17, 24, 39, 0.62);
+        --cbw-accent-1: #22c55e;
+        --cbw-accent-2: #3b82f6;
+        --cbw-accent-3: #a855f7;
+        --cbw-user: linear-gradient(135deg, #10b981 0%, #3b82f6 55%, #a855f7 110%);
+        --cbw-radius: 22px;
+        --cbw-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family: var(--cbw-font);
+      }
+
+      .cbw-root {
+        position: relative;
+        display: inline-block;
+        pointer-events: none;
+      }
+
+      .cbw-root > * {
+        pointer-events: auto;
+      }
+
+      .cbw-fab {
+        position: relative;
+        height: 52px;
+        width: 52px;
+        border-radius: 999px;
+        border: 1px solid var(--cbw-stroke);
+        background: rgba(255, 255, 255, 0.76);
+        backdrop-filter: blur(14px) saturate(1.4);
+        -webkit-backdrop-filter: blur(14px) saturate(1.4);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+        cursor: pointer;
+        display: inline-grid;
+        place-items: center;
+        transition: transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
+        isolation: isolate;
+      }
+
+      .cbw-fab:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
+        background: rgba(255, 255, 255, 0.86);
+      }
+
+      .cbw-fab:active {
+        transform: translateY(0px) scale(0.98);
+      }
+
+      .cbw-fab:focus-visible {
+        outline: none;
+        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22), 0 0 0 4px rgba(59, 130, 246, 0.25);
+      }
+
+      .cbw-fab__bg {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(circle at 30% 30%, rgba(34, 197, 94, 0.28), rgba(59, 130, 246, 0.16), rgba(168, 85, 247, 0.1));
+        filter: saturate(1.2);
+        opacity: 0.85;
+        z-index: 0;
+      }
+
+      .cbw-fab__icon {
+        position: relative;
+        z-index: 1;
+        height: 22px;
+        width: 22px;
+        color: rgba(17, 24, 39, 0.92);
+      }
+
+      .cbw-fab__status {
+        position: absolute;
+        right: -1px;
+        top: -1px;
+        height: 14px;
+        width: 14px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--cbw-accent-1), var(--cbw-accent-2));
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 10px 24px rgba(0, 0, 0, 0.22);
+        z-index: 2;
+      }
+
+      .cbw-panel {
+        position: absolute;
+        right: 0;
+        top: 56px;
+        width: min(92vw, 420px);
+        border-radius: var(--cbw-radius);
+        border: 1px solid var(--cbw-stroke);
+        background: var(--cbw-bg);
+        backdrop-filter: blur(18px) saturate(1.5);
+        -webkit-backdrop-filter: blur(18px) saturate(1.5);
+        box-shadow: var(--cbw-shadow);
+        overflow: hidden;
+      }
+
+      .cbw-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 14px 12px 14px;
+        background: linear-gradient(
+          180deg,
+          rgba(17, 24, 39, 0.78) 0%,
+          rgba(17, 24, 39, 0.62) 70%,
+          rgba(17, 24, 39, 0.52) 100%
+        );
+        color: rgba(255, 255, 255, 0.94);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .cbw-header__left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .cbw-avatar {
+        height: 34px;
+        width: 34px;
+        border-radius: 999px;
+        position: relative;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.06));
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+        flex: 0 0 auto;
+      }
+
+      .cbw-avatar__ring {
+        position: absolute;
+        inset: -8px;
+        border-radius: 999px;
+        background: conic-gradient(from 220deg, rgba(34, 197, 94, 0.55), rgba(59, 130, 246, 0.6), rgba(168, 85, 247, 0.55), rgba(34, 197, 94, 0.55));
+        filter: blur(10px);
+        opacity: 0.55;
+      }
+
+      .cbw-avatar__dot {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        height: 10px;
+        width: 10px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--cbw-accent-1), var(--cbw-accent-2));
+        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.55);
+      }
+
+      .cbw-title {
+        min-width: 0;
+      }
+
+      .cbw-title__name {
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+      }
+
+      .cbw-title__sub {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.2;
+        margin-top: 2px;
+      }
+
+      .cbw-close {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.92);
+        padding: 8px 10px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .cbw-close:hover {
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.24);
+        transform: translateY(-1px);
+      }
+
+      .cbw-close:active {
+        transform: translateY(0px) scale(0.98);
+      }
+
+      .cbw-close:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+      }
+
+      .cbw-body {
+        padding: 14px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.82) 100%);
+      }
+
+      .cbw-messages {
+        max-height: min(56vh, 360px);
+        overflow: auto;
+        padding-right: 6px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .cbw-row {
+        display: flex;
+      }
+
+      .cbw-row[data-role='user'] {
+        justify-content: flex-end;
+      }
+
+      .cbw-row[data-role='bot'] {
+        justify-content: flex-start;
+      }
+
+      .cbw-bubble {
+        max-width: 86%;
+        padding: 10px 12px;
+        border-radius: 18px;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--cbw-shadow-soft);
+        color: var(--cbw-text);
+        transform: translateZ(0);
+      }
+
+      .cbw-row[data-role='user'] .cbw-bubble {
+        border: 0;
+        color: rgba(255, 255, 255, 0.96);
+        background: var(--cbw-user);
+        box-shadow: 0 14px 34px rgba(16, 185, 129, 0.22), 0 10px 28px rgba(59, 130, 246, 0.18);
+      }
+
+      .cbw-text {
+        white-space: pre-wrap;
+        font-size: 13.5px;
+        line-height: 1.4;
+        letter-spacing: -0.005em;
+      }
+
+      .cbw-meta {
+        margin-top: 6px;
+        font-size: 10px;
+        opacity: 0.75;
+      }
+
+      .cbw-row[data-role='user'] .cbw-meta {
+        opacity: 0.85;
+      }
+
+      .cbw-bubble--typing {
+        padding: 12px 12px;
+      }
+
+      .cbw-typing {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 10px;
+      }
+
+      .cbw-typing span {
+        height: 7px;
+        width: 7px;
+        border-radius: 999px;
+        background: rgba(17, 24, 39, 0.32);
+        animation: cbwDot 900ms ease-in-out infinite;
+      }
+
+      .cbw-typing span:nth-child(2) {
+        animation-delay: 120ms;
+      }
+
+      .cbw-typing span:nth-child(3) {
+        animation-delay: 240ms;
+      }
+
+      @keyframes cbwDot {
+        0%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+        50% {
+          transform: translateY(-4px);
+          opacity: 0.95;
+        }
+      }
+
+      .cbw-footer {
+        padding: 12px 14px 14px 14px;
+        background: var(--cbw-bg-strong);
+        border-top: 1px solid var(--cbw-stroke);
+      }
+
+      .cbw-composer {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .cbw-input {
+        flex: 1 1 auto;
+        height: 40px;
+        border-radius: 14px;
+        border: 1px solid var(--cbw-stroke-strong);
+        background: rgba(255, 255, 255, 0.92);
+        padding: 0 12px;
+        font-size: 13.5px;
+        color: var(--cbw-text);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease;
+      }
+
+      .cbw-input::placeholder {
+        color: rgba(17, 24, 39, 0.45);
+      }
+
+      .cbw-input:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 0.45);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      }
+
+      .cbw-input:disabled {
+        opacity: 0.75;
+        cursor: not-allowed;
+      }
+
+      .cbw-send {
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 14px;
+        border: 0;
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.92), rgba(17, 24, 39, 0.74));
+        color: rgba(255, 255, 255, 0.96);
+        font-weight: 700;
+        font-size: 12.5px;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+        transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+      }
+
+      .cbw-send:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 20px 54px rgba(0, 0, 0, 0.28);
+        filter: saturate(1.05);
+      }
+
+      .cbw-send:active {
+        transform: translateY(0px) scale(0.99);
+      }
+
+      .cbw-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
+      }
+
+      .cbw-send:focus-visible {
+        outline: none;
+        box-shadow: 0 20px 54px rgba(0, 0, 0, 0.28), 0 0 0 4px rgba(59, 130, 246, 0.22);
+      }
+
+      .cbw-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .cbw-chip {
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        border: 1px solid var(--cbw-stroke);
+        background: rgba(255, 255, 255, 0.9);
+        color: rgba(17, 24, 39, 0.82);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
+      }
+
+      .cbw-chip:hover {
+        transform: translateY(-1px);
+        border-color: rgba(17, 24, 39, 0.18);
+        box-shadow: 0 14px 24px rgba(0, 0, 0, 0.12);
+      }
+
+      .cbw-chip:active {
+        transform: translateY(0px) scale(0.99);
+      }
+
+      .cbw-chip--primary {
+        border: 0;
+        color: rgba(255, 255, 255, 0.96);
+        background: var(--cbw-user);
+        box-shadow: 0 16px 34px rgba(59, 130, 246, 0.18);
+      }
+
+      .cbw-chip--primary:hover {
+        box-shadow: 0 20px 44px rgba(59, 130, 246, 0.22);
+      }
+
+      .cbw-incident {
+        margin-left: auto;
+        font-size: 11px;
+        color: var(--cbw-text-muted);
+        padding: 0 2px;
+      }
+
+      @media (max-width: 420px) {
+        .cbw-panel {
+          top: 54px;
+          width: min(94vw, 420px);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .cbw-fab,
+        .cbw-close,
+        .cbw-send,
+        .cbw-chip,
+        .cbw-input {
+          transition: none !important;
+        }
+        .cbw-typing span {
+          animation: none !important;
+          opacity: 0.8;
+        }
+      }
+    `
+  ]
 })
 export class ChatbotWidgetComponent {
   open = false;

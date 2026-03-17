@@ -10,15 +10,18 @@ import { Product } from '../../../core/models/product.model';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen">
       <!-- Header -->
-      <header class="bg-white shadow-sm border-b">
+      <header class="sticky top-0 z-10" style="backdrop-filter: blur(14px) saturate(1.35); -webkit-backdrop-filter: blur(14px) saturate(1.35); background: rgba(255,255,255,.72); border-bottom: 1px solid rgba(17,24,39,.10);">
         <div class="container mx-auto px-4 py-4">
           <div class="flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+            <div>
+              <div class="text-xs font-extrabold tracking-widest uppercase" style="color: rgba(17,24,39,.60);">Admin</div>
+              <h1 class="text-2xl font-extrabold" style="letter-spacing:-0.03em; color: rgba(17,24,39,.92);">Dashboard</h1>
+            </div>
             <div class="flex items-center space-x-4">
-              <span class="text-sm text-gray-600">Welcome, Admin</span>
-              <button class="btn-secondary text-sm">Logout</button>
+              <span class="pill" style="height: 32px; padding: 0 12px;">Welcome, Admin</span>
+              <button class="btn-secondary text-sm" style="border-radius: 14px;">Logout</button>
             </div>
           </div>
         </div>
@@ -26,25 +29,25 @@ import { Product } from '../../../core/models/product.model';
 
       <div class="container mx-auto px-4 py-8">
         <!-- Navigation Tabs -->
-        <nav class="flex space-x-8 border-b border-gray-200 mb-8">
+        <nav class="flex flex-wrap gap-3 mb-8">
           <button 
             (click)="activeTab.set('overview')"
-            [class]="activeTab() === 'overview' ? 'border-b-2 border-blue-500 text-blue-600 py-2 px-1 text-sm font-medium' : 'text-gray-500 hover:text-gray-700 py-2 px-1 text-sm font-medium'">
+            [class]="activeTab() === 'overview' ? 'pill pill--active' : 'pill'">
             Overview
           </button>
           <button 
             (click)="activeTab.set('products')"
-            [class]="activeTab() === 'products' ? 'border-b-2 border-blue-500 text-blue-600 py-2 px-1 text-sm font-medium' : 'text-gray-500 hover:text-gray-700 py-2 px-1 text-sm font-medium'">
+            [class]="activeTab() === 'products' ? 'pill pill--active' : 'pill'">
             Products
           </button>
           <button 
             (click)="activeTab.set('orders')"
-            [class]="activeTab() === 'orders' ? 'border-b-2 border-blue-500 text-blue-600 py-2 px-1 text-sm font-medium' : 'text-gray-500 hover:text-gray-700 py-2 px-1 text-sm font-medium'">
+            [class]="activeTab() === 'orders' ? 'pill pill--active' : 'pill'">
             Orders
           </button>
           <button 
             (click)="activeTab.set('users')"
-            [class]="activeTab() === 'users' ? 'border-b-2 border-blue-500 text-blue-600 py-2 px-1 text-sm font-medium' : 'text-gray-500 hover:text-gray-700 py-2 px-1 text-sm font-medium'">
+            [class]="activeTab() === 'users' ? 'pill pill--active' : 'pill'">
             Users
           </button>
         </nav>
@@ -52,7 +55,7 @@ import { Product } from '../../../core/models/product.model';
         <!-- Overview Tab -->
         @if (activeTab() === 'overview') {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="card p-6">
               <div class="flex items-center">
                 <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                   <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +69,7 @@ import { Product } from '../../../core/models/product.model';
               </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="card p-6">
               <div class="flex items-center">
                 <div class="p-3 rounded-full bg-green-100 text-green-600">
                   <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +83,7 @@ import { Product } from '../../../core/models/product.model';
               </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="card p-6">
               <div class="flex items-center">
                 <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
                   <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +97,7 @@ import { Product } from '../../../core/models/product.model';
               </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="card p-6">
               <div class="flex items-center">
                 <div class="p-3 rounded-full bg-red-100 text-red-600">
                   <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +112,7 @@ import { Product } from '../../../core/models/product.model';
             </div>
           </div>
 
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="card p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
             <p class="text-gray-600">No recent activity to display.</p>
           </div>
@@ -117,7 +120,7 @@ import { Product } from '../../../core/models/product.model';
 
         <!-- Products Tab -->
         @if (activeTab() === 'products') {
-          <div class="bg-white rounded-lg shadow">
+          <div class="card overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200">
               <div class="flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-900">Product Management</h3>
@@ -133,7 +136,7 @@ import { Product } from '../../../core/models/product.model';
             </div>
 
             <!-- Search Bar -->
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div class="px-6 py-4 border-b border-gray-200" style="background: rgba(255,255,255,.55);">
               <div class="flex items-center space-x-4">
                 <div class="flex-1">
                   <input 
@@ -167,7 +170,7 @@ import { Product } from '../../../core/models/product.model';
 
             <!-- Add Product Form -->
             @if (showAddProductForm()) {
-              <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div class="px-6 py-4 border-b border-gray-200" style="background: rgba(255,255,255,.55);">
                 <h4 class="text-md font-medium text-gray-900 mb-4">Add New Product</h4>
                 <form (ngSubmit)="onSubmitProduct()" #productForm="ngForm" class="space-y-4" enctype="multipart/form-data">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -294,7 +297,7 @@ import { Product } from '../../../core/models/product.model';
 
             <!-- Edit Product Form -->
             @if (showEditProductForm()) {
-              <div class="px-6 py-4 border-b border-gray-200 bg-blue-50">
+              <div class="px-6 py-4 border-b border-gray-200" style="background: rgba(255,255,255,.55);">
                 <h4 class="text-md font-medium text-gray-900 mb-4">Edit Product</h4>
                 <form (ngSubmit)="onSubmitEditProduct()" #editProductForm="ngForm" class="space-y-4" enctype="multipart/form-data">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -423,7 +426,7 @@ import { Product } from '../../../core/models/product.model';
             <!-- Products Table -->
             <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead style="background: rgba(255,255,255,.55);">
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
@@ -433,7 +436,7 @@ import { Product } from '../../../core/models/product.model';
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody style="background: rgba(255,255,255,.32);" class="divide-y divide-gray-200">
                   @for (product of filteredProducts(); track product.id) {
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap">
@@ -491,7 +494,7 @@ import { Product } from '../../../core/models/product.model';
 
         <!-- Orders Tab -->
         @if (activeTab() === 'orders') {
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="card p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Management</h3>
             <p class="text-gray-600">Order management functionality coming soon.</p>
           </div>
@@ -499,7 +502,7 @@ import { Product } from '../../../core/models/product.model';
 
         <!-- Users Tab -->
         @if (activeTab() === 'users') {
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="card p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">User Management</h3>
             <p class="text-gray-600">User management functionality coming soon.</p>
           </div>
@@ -507,17 +510,7 @@ import { Product } from '../../../core/models/product.model';
       </div>
     </div>
   `,
-  styles: [`
-    .form-input {
-      @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
-    }
-    .btn-primary {
-      @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed;
-    }
-    .btn-secondary {
-      @apply inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
-    }
-  `]
+  styles: []
 })
 export class AdminDashboardComponent implements OnInit {
   activeTab = signal<'overview' | 'products' | 'orders' | 'users'>('overview');

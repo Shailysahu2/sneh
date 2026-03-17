@@ -46,7 +46,7 @@ import { RouterModule } from '@angular/router';
               src="https://www.google.com/maps?q=Sneh%20Krishi%20Kendra%20%28%20Sahu%20Ji%20%29%20gali%20no%202%2C%20beside%20hanuman%20mandir%2C%20P%20N%20B%20Colony%2C%20Jabalpur%2C%20GCF%20Jabalpur%2C%20Madhya%20Pradesh%20482002&t=&z=18&ie=UTF8&iwloc=A&output=embed">
             </iframe>
           </div>
-          <div class="flex flex-col sm:flex-row gap-3 items-center justify-between p-4">
+          <div class="flex flex-col sm:flex-row gap-3 items-center justify-between p-4" style="background: rgba(255,255,255,.55); border-top: 1px solid rgba(17,24,39,.10);">
             <div class="text-sm text-gray-600">Pin location for easy navigation</div>
             <div class="flex gap-3">
               <a class="btn-secondary"

@@ -10,16 +10,28 @@ import { environment } from '../../../../environments/environment';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-10">
       @if (isLoading()) {
         <div class="flex justify-center py-12">
           <div class="spinner"></div>
         </div>
       } @else if (product()) {
+        <div class="mb-8 text-center">
+          <div class="text-xs font-extrabold tracking-widest uppercase" style="color: rgba(17,24,39,.60);">
+            Product
+          </div>
+          <h1 class="text-3xl md:text-4xl font-extrabold mt-2" style="letter-spacing: -0.03em; color: rgba(17,24,39,.92);">
+            {{ product()!.name }}
+          </h1>
+          <p class="mt-2 max-w-3xl mx-auto" style="color: rgba(17,24,39,.62);">
+            {{ product()!.shortDescription }}
+          </p>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Product Images -->
           <div class="space-y-4">
-            <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+            <div class="aspect-square rounded-2xl overflow-hidden card" style="padding: 0;">
               <img [src]="getProductImage(product()!)"
                    [alt]="product()!.name"
                    crossorigin="anonymous"
@@ -30,7 +42,7 @@ import { environment } from '../../../../environments/environment';
             @if (product()!.images && product()!.images.length > 1) {
               <div class="grid grid-cols-4 gap-2">
                 @for (image of product()!.images; track image.id) {
-                  <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-75">
+                  <div class="aspect-square rounded-xl overflow-hidden cursor-pointer transition-soft card" style="padding: 0;">
                     <img [src]="getFullImageUrl(image.url)" 
                          [alt]="image.alt"
                          crossorigin="anonymous"
@@ -45,64 +57,60 @@ import { environment } from '../../../../environments/environment';
 
           <!-- Product Info -->
           <div class="space-y-6">
-            <div>
-              <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ product()!.name }}</h1>
-              <p class="text-gray-600">{{ product()!.shortDescription }}</p>
-            </div>
+            <div class="card p-6">
+              <!-- Rating -->
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center space-x-2">
+                  <div class="flex items-center">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                      </svg>
+                    }
+                  </div>
+                  <span style="color: rgba(17,24,39,.62);">({{ product()!.ratings.count }} reviews)</span>
+                </div>
 
-            <!-- Rating -->
-            <div class="flex items-center space-x-2">
-              <div class="flex items-center">
-                @for (star of [1,2,3,4,5]; track star) {
-                  <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                  </svg>
+                <!-- Stock Status -->
+                <div class="flex items-center space-x-2">
+                  @if (product()!.inventory.status === 'in_stock') {
+                    <span class="pill pill--active" style="height: 30px; padding: 0 12px;">In Stock</span>
+                  } @else {
+                    <span class="pill" style="height: 30px; padding: 0 12px;">Out of Stock</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Price -->
+              <div class="mt-5 flex flex-wrap items-end gap-x-4 gap-y-2">
+                @if (product()!.salePrice) {
+                  <span class="text-3xl font-extrabold" style="color:#dc2626;">₹{{ product()!.salePrice | number:'1.2-2' }}</span>
+                  <span class="text-lg line-through" style="color: rgba(17,24,39,.45);">₹{{ product()!.price | number:'1.2-2' }}</span>
+                  <span class="pill" style="height: 30px; padding: 0 12px;">
+                    Save ₹{{ (product()!.price - product()!.salePrice!) | number:'1.2-2' }}
+                  </span>
+                } @else {
+                  <span class="text-3xl font-extrabold" style="color: rgba(17,24,39,.92);">₹{{ product()!.price | number:'1.2-2' }}</span>
                 }
               </div>
-              <span class="text-gray-600">({{ product()!.ratings.count }} reviews)</span>
-            </div>
-
-            <!-- Price -->
-            <div class="flex items-center space-x-4">
-              @if (product()!.salePrice) {
-                    <span class="text-3xl font-bold text-red-600">₹{{ product()!.salePrice | number:'1.2-2' }}</span>
-                <span class="text-xl text-gray-500 line-through">₹{{ product()!.price | number:'1.2-2' }}</span>
-                <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm font-semibold">
-                  Save ₹{{ (product()!.price - product()!.salePrice!) | number:'1.2-2' }}
-                </span>
-              } @else {
-                <span class="text-3xl font-bold text-gray-900">₹{{ product()!.price | number:'1.2-2' }}</span>
-              }
-            </div>
-
-            <!-- Stock Status -->
-            <div class="flex items-center space-x-2">
-              @if (product()!.inventory.status === 'in_stock') {
-                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span class="text-green-600 font-medium">In Stock</span>
-              } @else {
-                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span class="text-red-600 font-medium">Out of Stock</span>
-              }
-            </div>
 
             <!-- Attributes -->
             @if (product()!.attributes.length > 0) {
-              <div class="space-y-3">
+              <div class="mt-6 space-y-3">
                 @for (attr of product()!.attributes; track attr.name) {
                   <div class="flex items-center justify-between">
-                    <span class="font-medium text-gray-700">{{ attr.name }}:</span>
-                    <span class="text-gray-600">{{ attr.value }}</span>
+                    <span class="font-extrabold" style="color: rgba(17,24,39,.72);">{{ attr.name }}</span>
+                    <span style="color: rgba(17,24,39,.62);">{{ attr.value }}</span>
                   </div>
                 }
               </div>
             }
 
             <!-- Actions -->
-            <div class="space-y-4">
-              <div class="flex items-center space-x-4">
-                <label class="font-medium text-gray-700">Quantity:</label>
-                <select class="form-input w-20">
+            <div class="mt-6 space-y-4">
+              <div class="flex items-center gap-4">
+                <label class="font-extrabold" style="color: rgba(17,24,39,.72);">Quantity</label>
+                <select class="form-input w-24">
                   <option>1</option>
                   <option>2</option>
                   <option>3</option>
@@ -112,38 +120,39 @@ import { environment } from '../../../../environments/environment';
               </div>
 
               <div class="flex space-x-4">
-                <button class="flex-1 btn-primary py-3">Add to Cart</button>
-                <button class="btn-secondary px-6 py-3">
+                <button class="flex-1 btn-primary py-3" style="border-radius: 14px;">Add to Cart</button>
+                <button class="btn-secondary px-6 py-3" style="border-radius: 14px;" aria-label="Add to wishlist">
                   <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                   </svg>
                 </button>
               </div>
             </div>
+            </div>
           </div>
         </div>
 
         <!-- Product Description -->
         <div class="mt-12">
-          <div class="border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8">
-              <button class="border-b-2 border-blue-500 py-2 px-1 text-blue-600 font-medium">Description</button>
-              <button class="py-2 px-1 text-gray-500 hover:text-gray-700">Reviews</button>
-              <button class="py-2 px-1 text-gray-500 hover:text-gray-700">Shipping</button>
-            </nav>
-          </div>
-          <div class="py-6">
-            <p class="text-gray-700 leading-relaxed">{{ product()!.description }}</p>
+          <div class="card p-6">
+            <div class="flex flex-wrap gap-3">
+              <span class="pill pill--active" style="height: 34px;">Description</span>
+              <span class="pill" style="height: 34px;">Reviews</span>
+              <span class="pill" style="height: 34px;">Shipping</span>
+            </div>
+            <div class="mt-5">
+              <p style="color: rgba(17,24,39,.72); line-height: 1.75;">{{ product()!.description }}</p>
+            </div>
           </div>
         </div>
 
         <!-- Related Products -->
         @if (relatedProducts().length > 0) {
           <div class="mt-12">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Related Products</h2>
+            <h2 class="text-2xl font-extrabold mb-6" style="letter-spacing:-0.02em; color: rgba(17,24,39,.92);">Related Products</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               @for (relatedProduct of relatedProducts(); track relatedProduct.id) {
-                <a [routerLink]="['/products', relatedProduct.id]" class="block card p-4 hover:shadow-lg transition-shadow">
+                <a [routerLink]="['/products', relatedProduct.id]" class="block card p-4 transition-soft hoverable">
                   @if (relatedProduct.images && relatedProduct.images.length > 0) {
                     <img [src]="getFullImageUrl(relatedProduct.images[0].url)" 
                          [alt]="relatedProduct.name"
@@ -156,8 +165,8 @@ import { environment } from '../../../../environments/environment';
                       No Image
                     </div>
                   }
-                  <h3 class="font-medium text-gray-800 mb-1">{{ relatedProduct.name }}</h3>
-                  <p class="text-blue-600 font-semibold">₹{{ (relatedProduct.salePrice || relatedProduct.price) | number:'1.2-2' }}</p>
+                  <h3 class="font-extrabold mb-1" style="color: rgba(17,24,39,.92);">{{ relatedProduct.name }}</h3>
+                  <p style="color: rgba(17,24,39,.62);">₹{{ (relatedProduct.salePrice || relatedProduct.price) | number:'1.2-2' }}</p>
                 </a>
               }
             </div>

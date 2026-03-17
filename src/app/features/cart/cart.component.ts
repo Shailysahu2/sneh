@@ -25,7 +25,7 @@ import { CartService } from '../../core/services/cart.service';
           <!-- Cart Items -->
           <div class="lg:col-span-2 space-y-4">
             @for (item of cartItems(); track item.id) {
-              <div class="bg-white rounded-lg shadow-md p-6">
+              <div class="card p-6">
                 <div class="flex items-center space-x-4">
                   <img [src]="item.image" 
                        [alt]="item.name"
@@ -39,7 +39,7 @@ import { CartService } from '../../core/services/cart.service';
 
                   <div class="flex items-center space-x-3">
                     <button (click)="updateQuantity(item.id, item.quantity - 1)" 
-                            class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+                            class="pill" style="height: 34px; width: 34px; padding: 0;">
                       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                       </svg>
@@ -48,7 +48,7 @@ import { CartService } from '../../core/services/cart.service';
                     <span class="w-8 text-center font-medium">{{ item.quantity }}</span>
                     
                     <button (click)="updateQuantity(item.id, item.quantity + 1)"
-                            class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+                            class="pill" style="height: 34px; width: 34px; padding: 0;">
                       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                       </svg>
@@ -68,7 +68,7 @@ import { CartService } from '../../core/services/cart.service';
           </div>
 
           <!-- Order Summary -->
-          <div class="bg-white rounded-lg shadow-md p-6 h-fit">
+          <div class="card p-6 h-fit">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
             
             <div class="space-y-3">
