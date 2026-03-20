@@ -23,9 +23,6 @@ import { environment } from '../../../../environments/environment';
           <h1 class="text-3xl md:text-4xl font-extrabold mt-2" style="letter-spacing: -0.03em; color: rgba(17,24,39,.92);">
             {{ product()!.name }}
           </h1>
-          <p class="mt-2 max-w-3xl mx-auto" style="color: rgba(17,24,39,.62);">
-            {{ product()!.shortDescription }}
-          </p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -93,6 +90,57 @@ import { environment } from '../../../../environments/environment';
                   <span class="text-3xl font-extrabold" style="color: rgba(17,24,39,.92);">₹{{ product()!.price | number:'1.2-2' }}</span>
                 }
               </div>
+
+              <!-- Technical specifications -->
+              @if (product()!.hp || product()!.operatingVoltage || product()!.maxSuction || product()!.pipeSize || product()!.windingMaterial || product()!.head || product()!.flowLtrHr) {
+                <div class="mt-6 p-5 bg-gray-50 rounded-xl">
+                  <h3 class="text-lg font-semibold mb-3" style="color: rgba(17,24,39,.92);">Technical Specifications</h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    @if (product()!.hp) {
+                      <div class="flex justify-between">
+                        <span class="text-sm font-medium" style="color: rgba(17,24,39,.72);">Power</span>
+                        <span class="text-sm" style="color: rgba(17,24,39,.62);">{{ product()!.hp }} HP</span>
+                      </div>
+                    }
+                    @if (product()!.operatingVoltage) {
+                      <div class="flex justify-between">
+                        <span class="text-sm font-medium" style="color: rgba(17,24,39,.72);">Operating Voltage</span>
+                        <span class="text-sm" style="color: rgba(17,24,39,.62);">{{ product()!.operatingVoltage }}</span>
+                      </div>
+                    }
+                    @if (product()!.maxSuction) {
+                      <div class="flex justify-between">
+                        <span class="text-sm font-medium" style="color: rgba(17,24,39,.72);">Max Suction</span>
+                        <span class="text-sm" style="color: rgba(17,24,39,.62);">{{ product()!.maxSuction }}</span>
+                      </div>
+                    }
+                    @if (product()!.pipeSize) {
+                      <div class="flex justify-between">
+                        <span class="text-sm font-medium" style="color: rgba(17,24,39,.72);">Pipe Size</span>
+                        <span class="text-sm" style="color: rgba(17,24,39,.62);">{{ product()!.pipeSize }}</span>
+                      </div>
+                    }
+                    @if (product()!.windingMaterial) {
+                      <div class="flex justify-between">
+                        <span class="text-sm font-medium" style="color: rgba(17,24,39,.72);">Winding Material</span>
+                        <span class="text-sm" style="color: rgba(17,24,39,.62);">{{ product()!.windingMaterial }}</span>
+                      </div>
+                    }
+                    @if (product()!.head) {
+                      <div class="flex justify-between">
+                        <span class="text-sm font-medium" style="color: rgba(17,24,39,.72);">Head</span>
+                        <span class="text-sm" style="color: rgba(17,24,39,.62);">{{ product()!.head }}</span>
+                      </div>
+                    }
+                    @if (product()!.flowLtrHr) {
+                      <div class="flex justify-between">
+                        <span class="text-sm font-medium" style="color: rgba(17,24,39,.72);">Flow Ltr /hr</span>
+                        <span class="text-sm" style="color: rgba(17,24,39,.62);">{{ product()!.flowLtrHr }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
 
             <!-- Attributes -->
             @if (product()!.attributes.length > 0) {

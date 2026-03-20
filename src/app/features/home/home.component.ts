@@ -229,10 +229,6 @@ import { Product, Category } from '../../core/models/product.model';
                     {{ product.name }}
                   </h3>
                   
-                  <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {{ product.shortDescription }}
-                  </p>
-                  
                   <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                       @if (product.salePrice) {

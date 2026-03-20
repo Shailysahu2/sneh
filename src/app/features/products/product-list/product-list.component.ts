@@ -119,10 +119,6 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
                     {{ product.name }}
                   </h3>
                   
-                  <p class="text-sm mb-3 line-clamp-2" style="color: rgba(17,24,39,.62);">
-                    {{ product.shortDescription }}
-                  </p>
-                  
                   <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                       @if (product.salePrice) {

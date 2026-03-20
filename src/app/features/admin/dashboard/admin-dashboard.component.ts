@@ -197,19 +197,6 @@ import { Product } from '../../../core/models/product.model';
                       </select>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                      <select 
-                        [(ngModel)]="newProduct.brandId" 
-                        name="brand"
-                        required
-                        class="form-input w-full">
-                        <option value="">Select Brand</option>
-                        @for (brand of brands(); track brand.id) {
-                          <option [value]="brand.id">{{ brand.name }}</option>
-                        }
-                      </select>
-                    </div>
-                    <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">Price (Rs)</label>
                       <input 
                         type="number" 
@@ -241,16 +228,77 @@ import { Product } from '../../../core/models/product.model';
                     </div>
                   </div>
                   
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="newProduct.shortDescription" 
-                      name="shortDescription"
-                      required
-                      class="form-input w-full">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Head</label>
+                      <input 
+                        type="text" 
+                        [(ngModel)]="newProduct.head" 
+                        name="head"
+                        class="form-input w-full"
+                        placeholder="e.g., 5ft, 10ft">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Flow Ltr /hr</label>
+                      <input 
+                        type="text" 
+                        [(ngModel)]="newProduct.flowLtrHr" 
+                        name="flowLtrHr"
+                        class="form-input w-full"
+                        placeholder="e.g., 1000, 2000">
+                    </div>
                   </div>
                   
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">HP</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="newProduct.hp" 
+                      name="hp"
+                      class="form-input w-full"
+                      placeholder="e.g., 0.5, 1, 2">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Operating Voltage</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="newProduct.operatingVoltage" 
+                      name="operatingVoltage"
+                      class="form-input w-full"
+                      placeholder="e.g., 180V - 240V">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Suction</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="newProduct.maxSuction" 
+                      name="maxSuction"
+                      class="form-input w-full"
+                      placeholder="e.g., 8 Metres">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pipe Size</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="newProduct.pipeSize" 
+                      name="pipeSize"
+                      class="form-input w-full"
+                      placeholder='e.g., 25mm x 25mm (1" x 1")'>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Winding Material</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="newProduct.windingMaterial" 
+                      name="windingMaterial"
+                      class="form-input w-full"
+                      placeholder="e.g., 100% Copper">
+                  </div>
+
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Full Description</label>
                     <textarea 
@@ -324,19 +372,6 @@ import { Product } from '../../../core/models/product.model';
                       </select>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                      <select 
-                        [(ngModel)]="editingProduct.brandId" 
-                        name="editBrand"
-                        required
-                        class="form-input w-full">
-                        <option value="">Select Brand</option>
-                        @for (brand of brands(); track brand.id) {
-                          <option [value]="brand.id">{{ brand.name }}</option>
-                        }
-                      </select>
-                    </div>
-                    <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
                       <input 
                         type="number" 
@@ -368,16 +403,78 @@ import { Product } from '../../../core/models/product.model';
                     </div>
                   </div>
                   
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="editingProduct.shortDescription" 
-                      name="editShortDescription"
-                      required
-                      class="form-input w-full">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Head</label>
+                      <input 
+                        type="text" 
+                        [(ngModel)]="editingProduct.head" 
+                        name="editHead"
+                        class="form-input w-full"
+                        placeholder="e.g., 5ft, 10ft">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Flow Ltr /hr</label>
+                      <input 
+                        type="text" 
+                        [(ngModel)]="editingProduct.flowLtrHr" 
+                        name="editFlowLtrHr"
+                        class="form-input w-full"
+                        placeholder="e.g., 1000, 2000">
+                    </div>
                   </div>
                   
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">HP</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="editingProduct.hp" 
+                      name="editHp"
+                      class="form-input w-full"
+                      placeholder="e.g., 0.5, 1, 2">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Operating Voltage</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="editingProduct.operatingVoltage" 
+                      name="editOperatingVoltage"
+                      class="form-input w-full"
+                      placeholder="e.g., 180V - 240V">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Suction</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="editingProduct.maxSuction" 
+                      name="editMaxSuction"
+                      class="form-input w-full"
+                      placeholder="e.g., 8 Metres">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pipe Size</label>
+                    <input
+                      type="text" 
+                      [(ngModel)]="editingProduct.pipeSize" 
+                      name="editPipeSize"
+                      class="form-input w-full"
+                      placeholder="e.g., 25mm x 25mm (1&quot; x 1&quot;)"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Winding Material</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="editingProduct.windingMaterial" 
+                      name="editWindingMaterial"
+                      class="form-input w-full"
+                      placeholder="e.g., 100% Copper">
+                  </div>
+
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Full Description</label>
                     <textarea 
@@ -525,7 +622,6 @@ export class AdminDashboardComponent implements OnInit {
   
   products = signal<Product[]>([]);
   categories = signal<any[]>([]);
-  brands = signal<any[]>([]);
   
   // Computed properties for statistics
   totalProducts = computed(() => this.products().length);
@@ -569,25 +665,35 @@ export class AdminDashboardComponent implements OnInit {
   newProduct: any = {
     name: '',
     description: '',
-    shortDescription: '',
     sku: '',
     price: 0,
     categoryId: '',
-    brandId: '',
-    stock: 0
+    stock: 0,
+    head: '',
+    flowLtrHr: '',
+    hp: '',
+    operatingVoltage: '',
+    maxSuction: '',
+    pipeSize: '',
+    windingMaterial: ''
   };
   
   editingProduct: any = {
     id: '',
     name: '',
     description: '',
-    shortDescription: '',
     sku: '',
     price: 0,
     categoryId: '',
-    brandId: '',
     stock: 0,
-    isActive: true
+    isActive: true,
+    head: '',
+    flowLtrHr: '',
+    hp: '',
+    operatingVoltage: '',
+    maxSuction: '',
+    pipeSize: '',
+    windingMaterial: ''
   };
   
   selectedFiles: File[] = [];
@@ -606,10 +712,6 @@ export class AdminDashboardComponent implements OnInit {
     this.productService.getCategories().subscribe(categories => {
       this.categories.set(categories);
     });
-    
-    this.productService.getBrands().subscribe(brands => {
-      this.brands.set(brands);
-    });
   }
 
   onSubmitProduct() {
@@ -622,7 +724,6 @@ export class AdminDashboardComponent implements OnInit {
       price: Number(this.newProduct.price) || 0,
       stock: Number(this.newProduct.stock) || 0,
       category: this.categories().find(c => c.id === this.newProduct.categoryId)?.name || '',
-      brand: this.brands().find(b => b.id === this.newProduct.brandId)?.name || '',
       inventory: { 
         quantity: Number(this.newProduct.stock) || 0, 
         lowStockThreshold: 10, 
@@ -655,12 +756,17 @@ export class AdminDashboardComponent implements OnInit {
     this.newProduct = {
       name: '',
       description: '',
-      shortDescription: '',
       sku: '',
       price: 0,
       categoryId: '',
-      brandId: '',
-      stock: 0
+      stock: 0,
+      head: '',
+      flowLtrHr: '',
+      hp: '',
+      operatingVoltage: '',
+      maxSuction: '',
+      pipeSize: '',
+      windingMaterial: ''
     };
     this.selectedFiles = [];
   }
@@ -696,13 +802,18 @@ export class AdminDashboardComponent implements OnInit {
       id: product.id,
       name: product.name,
       description: product.description,
-      shortDescription: product.shortDescription,
       sku: product.sku,
       price: product.price,
       categoryId: this.categories().find(c => c.name === product.category?.name)?.id || '',
-      brandId: this.brands().find(b => b.name === product.brand?.name)?.id || '',
       stock: product.inventory?.quantity || 0,
-      isActive: product.isActive
+      isActive: product.isActive,
+      head: product.head || '',
+      flowLtrHr: product.flowLtrHr || '',
+      hp: product.hp || '',
+      operatingVoltage: product.operatingVoltage || '',
+      maxSuction: product.maxSuction || '',
+      pipeSize: product.pipeSize || '',
+      windingMaterial: product.windingMaterial || ''
     };
     this.showEditProductForm.set(true);
   }
@@ -734,7 +845,6 @@ export class AdminDashboardComponent implements OnInit {
       price: Number(this.editingProduct.price) || 0,
       stock: Number(this.editingProduct.stock) || 0,
       category: this.categories().find(c => c.id === this.editingProduct.categoryId)?.name || '',
-      brand: this.brands().find(b => b.id === this.editingProduct.brandId)?.name || '',
       inventory: { 
         quantity: Number(this.editingProduct.stock) || 0, 
         lowStockThreshold: 10, 
@@ -767,13 +877,18 @@ export class AdminDashboardComponent implements OnInit {
       id: '',
       name: '',
       description: '',
-      shortDescription: '',
       sku: '',
       price: 0,
       categoryId: '',
-      brandId: '',
       stock: 0,
-      isActive: true
+      isActive: true,
+      head: '',
+      flowLtrHr: '',
+      hp: '',
+      operatingVoltage: '',
+      maxSuction: '',
+      pipeSize: '',
+      windingMaterial: ''
     };
     this.showEditProductForm.set(false);
   }

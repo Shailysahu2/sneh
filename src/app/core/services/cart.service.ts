@@ -29,8 +29,7 @@ export class CartService {
       name: product.name,
       price: Number(price) || 0,
       quantity,
-      image,
-      description: product.shortDescription
+      image
     };
     this.items.set([...this.items(), item]);
   }

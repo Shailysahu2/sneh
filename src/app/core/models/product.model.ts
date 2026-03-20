@@ -2,14 +2,19 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  shortDescription: string;
   sku: string;
   price: number;
   salePrice?: number;
   images: ProductImage[];
   category: Category;
-  brand: Brand;
   tags: string[];
+  head?: string;
+  flowLtrHr?: string;
+  hp?: string;
+  operatingVoltage?: string;
+  maxSuction?: string;
+  pipeSize?: string;
+  windingMaterial?: string;
   attributes: ProductAttribute[];
   variants: ProductVariant[];
   inventory: ProductInventory;
@@ -38,15 +43,6 @@ export interface Category {
   image?: string;
   parentId?: string;
   children?: Category[];
-  isActive: boolean;
-}
-
-export interface Brand {
-  id: string;
-  name: string;
-  slug: string;
-  logo?: string;
-  description?: string;
   isActive: boolean;
 }
 

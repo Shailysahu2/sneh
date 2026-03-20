@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, delay, map, catchError } from 'rxjs';
-import { Product, ProductFilter, Category, Brand } from '../models/product.model';
+import { Product, ProductFilter, Category } from '../models/product.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -14,7 +14,6 @@ export class ProductService {
   // Signals for reactive state
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
-  brands = signal<Brand[]>([]);
   isLoading = signal<boolean>(false);
 
   constructor(private http: HttpClient) {
@@ -32,17 +31,7 @@ export class ProductService {
       { id: '5', name: 'Self-Priming Pumps', slug: 'self-priming-pumps', isActive: true }
     ];
 
-    // Mock brands
-    const mockBrands: Brand[] = [
-      { id: '1', name: 'Apple', slug: 'apple', isActive: true },
-      { id: '2', name: 'Samsung', slug: 'samsung', isActive: true },
-      { id: '3', name: 'Nike', slug: 'nike', isActive: true },
-      { id: '4', name: 'Adidas', slug: 'adidas', isActive: true },
-      { id: '5', name: 'Sony', slug: 'sony', isActive: true }
-    ];
-
     this.categories.set(mockCategories);
-    this.brands.set(mockBrands);
   }
 
   private loadProductsFromBackend(): void {
@@ -72,14 +61,19 @@ export class ProductService {
             id: bp._id || bp.id,
             name: bp.name,
             description: bp.description,
-            shortDescription: bp.description?.substring(0, 100) || '',
             sku: bp.sku || `SKU${bp._id}`,
             price: bp.price,
             salePrice: bp.salePrice,
             images: processedProduct.images,
             category: this.categories().find(c => c.name === bp.category) || this.categories()[0],
-            brand: this.brands().find(b => b.name === bp.brand) || this.brands()[0],
             tags: bp.tags || [],
+            head: bp.head || '',
+            flowLtrHr: bp.flowLtrHr || '',
+            hp: bp.hp || '',
+            operatingVoltage: bp.operatingVoltage || '',
+            maxSuction: bp.maxSuction || '',
+            pipeSize: bp.pipeSize || '',
+            windingMaterial: bp.windingMaterial || '',
             attributes: bp.attributes || [],
             variants: bp.variants || [],
             inventory: {
@@ -123,14 +117,19 @@ export class ProductService {
             id: bp._id || bp.id,
             name: bp.name,
             description: bp.description,
-            shortDescription: bp.description?.substring(0, 100) || '',
             sku: bp.sku || `SKU${bp._id}`,
             price: bp.price,
             salePrice: bp.salePrice,
             images: processedProduct.images,
             category: this.categories().find(c => c.name === bp.category) || this.categories()[0],
-            brand: this.brands().find(b => b.name === bp.brand) || this.brands()[0],
             tags: bp.tags || [],
+            head: bp.head || '',
+            flowLtrHr: bp.flowLtrHr || '',
+            hp: bp.hp || '',
+            operatingVoltage: bp.operatingVoltage || '',
+            maxSuction: bp.maxSuction || '',
+            pipeSize: bp.pipeSize || '',
+            windingMaterial: bp.windingMaterial || '',
             attributes: bp.attributes || [],
             variants: bp.variants || [],
             inventory: {
@@ -172,14 +171,19 @@ export class ProductService {
           id: backendProduct._id || backendProduct.id,
           name: backendProduct.name,
           description: backendProduct.description,
-          shortDescription: backendProduct.description?.substring(0, 100) || '',
           sku: backendProduct.sku || `SKU${backendProduct._id}`,
           price: backendProduct.price,
           salePrice: backendProduct.salePrice,
           images: processedProduct.images,
           category: this.categories().find(c => c.name === backendProduct.category) || this.categories()[0],
-          brand: this.brands().find(b => b.name === backendProduct.brand) || this.brands()[0],
           tags: backendProduct.tags || [],
+          head: backendProduct.head || '',
+          flowLtrHr: backendProduct.flowLtrHr || '',
+          hp: backendProduct.hp || '',
+          operatingVoltage: backendProduct.operatingVoltage || '',
+          maxSuction: backendProduct.maxSuction || '',
+          pipeSize: backendProduct.pipeSize || '',
+          windingMaterial: backendProduct.windingMaterial || '',
           attributes: backendProduct.attributes || [],
           variants: backendProduct.variants || [],
           inventory: {
@@ -217,10 +221,6 @@ export class ProductService {
     return of(this.categories()).pipe(delay(200));
   }
 
-  getBrands(): Observable<Brand[]> {
-    return of(this.brands()).pipe(delay(200));
-  }
-
   searchProducts(query: string): Observable<Product[]> {
     const filtered = this.products().filter(p => 
       p.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -249,9 +249,15 @@ export class ProductService {
       formData.append('description', product.description || '');
       formData.append('price', String(product.price || 0));
       formData.append('category', typeof product.category === 'object' ? product.category?.name : product.category || '');
-      formData.append('brand', typeof product.brand === 'object' ? product.brand?.name : product.brand || '');
       formData.append('stock', String(product.inventory?.quantity || 0));
       formData.append('sku', product.sku || '');
+      formData.append('head', product.head || '');
+      formData.append('flowLtrHr', product.flowLtrHr || '');
+      formData.append('hp', product.hp || '');
+      formData.append('operatingVoltage', product.operatingVoltage || '');
+      formData.append('maxSuction', product.maxSuction || '');
+      formData.append('pipeSize', product.pipeSize || '');
+      formData.append('windingMaterial', product.windingMaterial || '');
       files.forEach((file, i) => {
         formData.append('images', file, file.name);
       });
@@ -262,7 +268,6 @@ export class ProductService {
             id: response._id || Date.now().toString(),
             name: response.name,
             description: response.description,
-            shortDescription: product.shortDescription || response.description.substring(0, 100),
             sku: response.sku || product.sku || `SKU${Date.now()}`,
             price: response.price,
             salePrice: product.salePrice,
@@ -274,8 +279,14 @@ export class ProductService {
               order: index + 1
             })) || [],
             category: this.categories().find(c => c.name === response.category) || this.categories()[0],
-            brand: this.brands().find(b => b.name === response.brand) || this.brands()[0],
             tags: product.tags || [],
+            head: response.head || product.head || '',
+            flowLtrHr: response.flowLtrHr || product.flowLtrHr || '',
+            hp: response.hp || product.hp || '',
+            operatingVoltage: response.operatingVoltage || product.operatingVoltage || '',
+            maxSuction: response.maxSuction || product.maxSuction || '',
+            pipeSize: response.pipeSize || product.pipeSize || '',
+            windingMaterial: response.windingMaterial || product.windingMaterial || '',
             attributes: product.attributes || [],
             variants: product.variants || [],
             inventory: {
@@ -315,9 +326,15 @@ export class ProductService {
         description: product.description,
         price: product.price,
         category: typeof product.category === 'object' ? product.category?.name : product.category,
-        brand: typeof product.brand === 'object' ? product.brand?.name : product.brand,
         stock: product.inventory?.quantity || 0,
         sku: product.sku,
+        head: product.head || '',
+        flowLtrHr: product.flowLtrHr || '',
+        hp: product.hp || '',
+        operatingVoltage: product.operatingVoltage || '',
+        maxSuction: product.maxSuction || '',
+        pipeSize: product.pipeSize || '',
+        windingMaterial: product.windingMaterial || '',
         images: product.images?.map(img => ({ url: img.url, public_id: '' })) || []
       };
       
@@ -327,7 +344,6 @@ export class ProductService {
             id: response._id || Date.now().toString(),
             name: response.name,
             description: response.description,
-            shortDescription: product.shortDescription || response.description.substring(0, 100),
             sku: response.sku || product.sku || `SKU${Date.now()}`,
             price: response.price,
             salePrice: product.salePrice,
@@ -339,8 +355,14 @@ export class ProductService {
               order: index + 1
             })) || [],
             category: this.categories().find(c => c.name === response.category) || this.categories()[0],
-            brand: this.brands().find(b => b.name === response.brand) || this.brands()[0],
             tags: product.tags || [],
+            head: response.head || product.head || '',
+            flowLtrHr: response.flowLtrHr || product.flowLtrHr || '',
+            hp: response.hp || product.hp || '',
+            operatingVoltage: response.operatingVoltage || product.operatingVoltage || '',
+            maxSuction: response.maxSuction || product.maxSuction || '',
+            pipeSize: response.pipeSize || product.pipeSize || '',
+            windingMaterial: response.windingMaterial || product.windingMaterial || '',
             attributes: product.attributes || [],
             variants: product.variants || [],
             inventory: {
@@ -382,10 +404,16 @@ export class ProductService {
       description: updates.description,
       price: updates.price,
       category: typeof updates.category === 'object' ? updates.category?.name : updates.category,
-      brand: typeof updates.brand === 'object' ? updates.brand?.name : updates.brand,
       stock: updates.inventory?.quantity || 0,
       sku: updates.sku,
-      isActive: updates.isActive
+      isActive: updates.isActive,
+      head: updates.head || '',
+      flowLtrHr: updates.flowLtrHr || '',
+      hp: updates.hp || '',
+      operatingVoltage: updates.operatingVoltage || '',
+      maxSuction: updates.maxSuction || '',
+      pipeSize: updates.pipeSize || '',
+      windingMaterial: updates.windingMaterial || ''
     };
 
     return this.http.put<any>(`${this.API_URL}/${id}`, backendUpdates).pipe(
@@ -394,7 +422,6 @@ export class ProductService {
           id: response._id || id,
           name: response.name,
           description: response.description,
-          shortDescription: updates.shortDescription || response.description?.substring(0, 100) || '',
           sku: response.sku,
           price: response.price,
           salePrice: updates.salePrice,
@@ -406,8 +433,14 @@ export class ProductService {
             order: index + 1
           })) || [],
           category: this.categories().find(c => c.name === response.category) || this.categories()[0],
-          brand: this.brands().find(b => b.name === response.brand) || this.brands()[0],
           tags: updates.tags || [],
+          head: response.head || updates.head || '',
+          flowLtrHr: response.flowLtrHr || updates.flowLtrHr || '',
+          hp: response.hp || updates.hp || '',
+          operatingVoltage: response.operatingVoltage || updates.operatingVoltage || '',
+          maxSuction: response.maxSuction || updates.maxSuction || '',
+          pipeSize: response.pipeSize || updates.pipeSize || '',
+          windingMaterial: response.windingMaterial || updates.windingMaterial || '',
           attributes: updates.attributes || [],
           variants: updates.variants || [],
           inventory: {
