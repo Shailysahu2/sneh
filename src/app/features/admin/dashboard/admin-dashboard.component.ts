@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../core/models/product.model';
 
+const PLACEHOLDER_IMAGE_SM = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZWVlIi8+PC9zdmc+';
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -790,11 +792,11 @@ export class AdminDashboardComponent implements OnInit {
       }
     }
     // Fallback to placeholder
-    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%23f0f0f0' width='40' height='40'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='10' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3ENo+Image%3C/text%3E%3C/svg%3E`;
+    return PLACEHOLDER_IMAGE_SM;
   }
 
   onImageError(event: any) {
-    event.target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%23f0f0f0' width='40' height='40'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='10' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3ENo+Image%3C/text%3E%3C/svg%3E`;
+    event.target.src = PLACEHOLDER_IMAGE_SM;
   }
 
   editProduct(product: Product) {

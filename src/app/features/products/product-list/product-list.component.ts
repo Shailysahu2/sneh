@@ -7,6 +7,8 @@ import { ToastService } from '../../../core/services/toast.service';
 import { Product, ProductFilter } from '../../../core/models/product.model';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 
+const PLACEHOLDER_IMAGE_MD = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==';
+
 @Component({
   selector: 'app-product-list',
   standalone: true,
@@ -243,12 +245,12 @@ export class ProductListComponent implements OnInit {
     }
     
     // Fallback to placeholder (data URI - no external API calls)
-    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23f0f0f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3ENo Image Available%3C/text%3E%3C/svg%3E`;
+    return PLACEHOLDER_IMAGE_MD;
   }
 
   onImageError(event: any): void {
     console.log('Image failed to load:', event.target.src);
-    event.target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23f0f0f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EImage Failed to Load%3C/text%3E%3C/svg%3E`;
+    event.target.src = PLACEHOLDER_IMAGE_MD;
   }
 
   onImageLoad(event: any): void {

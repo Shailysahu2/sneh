@@ -5,6 +5,8 @@ import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../core/models/product.model';
 import { environment } from '../../../../environments/environment';
 
+const PLACEHOLDER_IMAGE_MD = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==';
+
 @Component({
   selector: 'app-product-detail',
   standalone: true,
@@ -278,7 +280,7 @@ export class ProductDetailComponent implements OnInit {
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23f0f0f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EImage Failed to Load%3C/text%3E%3C/svg%3E`;
+    img.src = PLACEHOLDER_IMAGE_MD;
   }
 
   onImageLoad(event: Event): void {}
@@ -310,6 +312,6 @@ export class ProductDetailComponent implements OnInit {
         return url;
       }
     }
-    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23f0f0f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3ENo Image Available%3C/text%3E%3C/svg%3E`;
+    return PLACEHOLDER_IMAGE_MD;
   }
 }
