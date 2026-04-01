@@ -10,7 +10,7 @@ export interface CartItem {
   description?: string;
 }
 
-const PLACEHOLDER_IMAGE_SM = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZWVlIi8+PC9zdmc+';
+const PLACEHOLDER_IMAGE_SM = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {

@@ -7,7 +7,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { Product, ProductFilter } from '../../../core/models/product.model';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 
-const PLACEHOLDER_IMAGE_MD = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==';
+const PLACEHOLDER_IMAGE_MD = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
 @Component({
   selector: 'app-product-list',

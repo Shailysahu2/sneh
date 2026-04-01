@@ -4,7 +4,7 @@ import { Observable, of, delay, map, catchError } from 'rxjs';
 import { Product, ProductFilter, Category } from '../models/product.model';
 import { environment } from '../../../environments/environment';
 
-const PLACEHOLDER_IMAGE_MD = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==';
+const PLACEHOLDER_IMAGE_MD = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
 @Injectable({
   providedIn: 'root'
