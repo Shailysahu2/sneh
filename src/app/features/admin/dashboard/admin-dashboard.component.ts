@@ -790,11 +790,11 @@ export class AdminDashboardComponent implements OnInit {
       }
     }
     // Fallback to placeholder
-    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect fill="%23f0f0f0" width="40" height="40"/%3E%3Ctext x="50%" y="50%" font-family="Arial" font-size="10" fill="%23999" text-anchor="middle" dominant-baseline="middle"%3ENo+Image%3C/text%3E%3C/svg%3E';
+    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%23f0f0f0' width='40' height='40'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='10' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3ENo+Image%3C/text%3E%3C/svg%3E`;
   }
 
   onImageError(event: any) {
-    event.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect fill="%23f0f0f0" width="40" height="40"/%3E%3Ctext x="50%" y="50%" font-family="Arial" font-size="10" fill="%23999" text-anchor="middle" dominant-baseline="middle"%3ENo+Image%3C/text%3E%3C/svg%3E';
+    event.target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%23f0f0f0' width='40' height='40'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='10' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3ENo+Image%3C/text%3E%3C/svg%3E`;
   }
 
   editProduct(product: Product) {
